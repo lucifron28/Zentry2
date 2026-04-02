@@ -1,6 +1,25 @@
-from django.test import SimpleTestCase
+from django.test import TestCase
+
+from apps.users.models import User
 
 
-class UsersSmokeTests(SimpleTestCase):
-    def test_placeholder(self):
-        self.assertTrue(True)
+class UserModelTests(TestCase):
+    def test_default_role_is_team_member(self):
+        user = User.objects.create_user(
+            username="member01",
+            email="member@example.com",
+            password="TestPass123!",
+        )
+
+        self.assertEqual(user.role, User.Role.TEAM_MEMBER)
+
+    def test_email_is_normalized_to_lowercase_on_save(self):
+        user = User.objects.create_user(
+            username="member02",
+            email="Member@Example.COM",
+            password="TestPass123!",
+        )
+
+        self.assertEqual(user.email, "member@example.com")
+
+
