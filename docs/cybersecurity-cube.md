@@ -10,11 +10,15 @@ This section is a structured draft for Zentry cybersecurity documentation. Use t
 ### 2.1.1 Data Confidentiality
 Zentry-specific guidance:
 - Implemented:
-  - [Document already enforced access restrictions and authentication checks]
+  - Frontend route guards separate public and protected layouts.
+  - Frontend auth session state controls access to protected shell routes.
+  - Client request interceptor attaches Bearer access token when available.
 - In Progress:
-  - [Document module-level role and object-level access checks currently being wired]
+  - Backend authentication endpoint lifecycle (login, refresh, logout) is being completed.
+  - Module-level and object-level backend authorization wiring is ongoing.
 - Planned:
-  - [Document additional hardening for sensitive records and attachment access]
+  - Finalized authorization matrices per module and role.
+  - Attachment-level confidentiality controls after upload pipeline completion.
 - Evidence to capture:
   - Screenshot of restricted page behavior for unauthorized user
   - API response example for denied access
@@ -22,11 +26,14 @@ Zentry-specific guidance:
 ### 2.1.2 Data Integrity
 Zentry-specific guidance:
 - Implemented:
-  - [Document server-side validation currently active]
+  - Frontend login input validation scaffold is present.
+  - Centralized API client and interceptor layer is in place for consistent request handling.
 - In Progress:
-  - [Document serializer and permission rules being added per module]
+  - Serializer-level and business-rule validation is being added per backend module.
+  - State-change traceability across domain actions is not yet complete.
 - Planned:
-  - [Document integrity checks for critical state changes and role updates]
+  - Full integrity checks for high-impact operations (status changes, assignments, role updates).
+  - Cross-module consistency checks between Projects, Tasks, and Activity Logs.
 - Evidence to capture:
   - Validation error response sample
   - Activity Log sample showing state-change traceability
@@ -34,11 +41,12 @@ Zentry-specific guidance:
 ### 2.1.3 Data Availability
 Zentry-specific guidance:
 - Implemented:
-  - [Document currently available local development access and baseline service startup]
+  - Local Docker Compose startup is available for client, server, and postgres.
+  - Reusable loading, error, and empty UI states are scaffolded for frontend reliability messaging.
 - In Progress:
-  - [Document reliability improvements for module endpoints and error handling]
+  - Module endpoint implementation and resilience behavior are in progress.
 - Planned:
-  - [Document deployment and recovery strategy after confirmation]
+  - Production deployment reliability, backup, and recovery playbooks.
 - Evidence to capture:
   - Successful endpoint health checks
   - Controlled error handling screenshots
@@ -48,11 +56,14 @@ Zentry-specific guidance:
 ### 2.2.1 Data In Transit
 Zentry-specific guidance:
 - Implemented:
-  - [Document current authenticated request flow with access token handling]
+  - Access token attachment via frontend Axios interceptor is configured.
+  - API base URL is environment-driven on the frontend.
+  - Session-clearing behavior on unauthorized responses is scaffolded.
 - In Progress:
-  - [Document request/response handling consistency across modules]
+  - End-to-end authenticated request/response lifecycle across completed backend auth endpoints.
 - Planned:
-  - [Document transport-layer deployment policy after environment is finalized]
+  - Secure refresh-token cookie strategy and finalized token refresh flow.
+  - Deployment-grade transport policies and enforcement checks.
 - Evidence to capture:
   - API request example showing authenticated route usage
   - Route-level permission response examples
@@ -60,11 +71,13 @@ Zentry-specific guidance:
 ### 2.2.2 Data at Rest
 Zentry-specific guidance:
 - Implemented:
-  - [Document current database persistence used in development]
+  - Local development persistence is available through postgres service in Docker Compose.
+  - Environment-based database configuration scaffolding is present.
 - In Progress:
-  - [Document migration toward finalized PostgreSQL configuration]
+  - Full domain model persistence and module-level migrations are in progress.
 - Planned:
-  - [Document backup, retention, and restoration policy once confirmed]
+  - Backup retention and restoration policy for deployment environments.
+  - Storage security controls for sensitive and uploaded content.
 - Evidence to capture:
   - Model-to-database mapping references
   - Migration history snapshots
@@ -72,11 +85,12 @@ Zentry-specific guidance:
 ### 2.2.3 Data In Process
 Zentry-specific guidance:
 - Implemented:
-  - [Document request validation and permission evaluation currently running on the server]
+  - Frontend protected route checks and intended-route redirect restoration are scaffolded.
 - In Progress:
-  - [Document role-aware and object-level checks being expanded]
+  - Server-side permission evaluation for module actions is being expanded.
+  - Role-aware and object-level checks are not yet complete across all endpoints.
 - Planned:
-  - [Document additional monitoring for high-risk operations]
+  - Additional monitoring and alerting for high-risk operations.
 - Evidence to capture:
   - Controller/view execution examples
   - Permission decision examples by role
@@ -86,11 +100,13 @@ Zentry-specific guidance:
 ### 2.3.1 Technology
 Zentry-specific guidance:
 - Implemented:
-  - [Document confirmed framework and auth safeguards currently active]
+  - Django, DRF, SimpleJWT, and centralized frontend Axios client scaffolding are in place.
+  - Frontend session-aware route guarding and request token attachment behavior are implemented at scaffold level.
 - In Progress:
-  - [Document pagination, validation, and endpoint guard improvements by module]
+  - Endpoint-level permission and validation wiring by module.
+  - Audit logging integration across feature actions.
 - Planned:
-  - [Document additional technical controls only after implementation]
+  - Production-grade hardening controls and security verification automation.
 - Evidence to capture:
   - Config snippets (sanitized)
   - Endpoint protection test outputs
@@ -98,11 +114,12 @@ Zentry-specific guidance:
 ### 2.3.2 Policy and Practices
 Zentry-specific guidance:
 - Implemented:
-  - [Document coding and documentation rules already enforced in repository instructions]
+  - Documentation-first workflow with feature-log and manual/cybersecurity draft structure is established.
+  - Repository instruction files enforce terminology and conservative documentation practices.
 - In Progress:
-  - [Document team practices for feature logging and security review checkpoints]
+  - Security review checkpoints are being aligned to module delivery milestones.
 - Planned:
-  - [Document release and incident handling practices when finalized]
+  - Formal release checklist and incident handling practices for deployment stage.
 - Evidence to capture:
   - Feature log entries
   - Pull request or checklist references
@@ -110,11 +127,11 @@ Zentry-specific guidance:
 ### 2.3.3 People
 Zentry-specific guidance:
 - Implemented:
-  - [Document role definitions: Admin, Project Manager, Team Member]
+  - Role definitions are documented: Admin, Project Manager, Team Member.
 - In Progress:
-  - [Document role-specific workflow validation in active modules]
+  - Role-specific workflow validation is pending module-level implementation.
 - Planned:
-  - [Document user training and onboarding checklist for production use]
+  - User onboarding/training and role-governance procedures for production context.
 - Evidence to capture:
   - Role-based access screenshots
   - Role assignment/change evidence entries

@@ -68,31 +68,63 @@ zentry2/
 ```
 
 ## Current Development Status
-Current status:
-- Frontend and backend base scaffolding is in progress.
-- Documentation scaffold is being established first to support implementation tracking.
-- Feature behavior should be treated as planned or in progress unless explicitly verified.
+Current status summary:
+- The repository is now well-scaffolded for development and documentation tracking.
+- Frontend shell and navigation structure are implemented, with placeholder module pages for staged feature rollout.
+- Backend project structure and security framework setup exist, but core business endpoints and full module behavior are still in progress.
 
-## Setup (Draft Placeholders)
-These placeholders will be replaced by finalized commands after environment and workflow decisions are validated.
+Implemented scaffolding highlights:
+- Local Docker Compose development stack for client, server, and postgres.
+- Frontend styling foundation with Tailwind CSS v4 and daisyUI 5.
+- Approved daisyUI theme registration with configured default/preferred-dark behavior.
+- Public and protected layout separation.
+- App shell foundation with sidebar, topbar, and reusable loading/error/empty states.
+- Frontend auth session and redirect flow scaffolding (intended-route restoration after login).
+
+In-progress areas:
+- Backend authentication endpoint lifecycle (login/refresh/logout flow completion).
+- Module-specific CRUD APIs and object-level authorization behavior.
+- Finalized audit logging integration across all protected actions.
+
+## Setup (Local Development)
+These instructions are for local development. Production deployment guidance is intentionally out of scope at this stage.
 
 ### Prerequisites
 - Node.js LTS and npm
 - Python 3.12+ (or project-approved version)
-- PostgreSQL
+- Docker and Docker Compose plugin (recommended path)
 
-### Frontend Setup Placeholder
-1. Navigate to client directory.
-2. Install dependencies.
-3. Run development server.
+### Recommended: Docker Compose (Dev Only)
+1. Copy `server/.env.example` to `server/.env`.
+2. Set local development values, including:
+	- `DJANGO_SECRET_KEY`
+	- `POSTGRES_DB`
+	- `POSTGRES_USER`
+	- `POSTGRES_PASSWORD`
+3. From the repository root, run:
+	- `docker compose --env-file server/.env up --build`
+4. Open:
+	- Frontend: `http://localhost:5173`
+	- Backend API base: `http://localhost:8000/api/v1`
 
-### Backend Setup Placeholder
-1. Navigate to server directory.
-2. Create and activate virtual environment.
-3. Install dependencies.
-4. Configure environment variables.
-5. Run migrations.
-6. Start development server.
+Stop containers:
+1. `docker compose down`
+2. Optional full reset including DB volume: `docker compose down -v`
+
+### Optional: Manual Service Startup
+Frontend:
+1. `cd client`
+2. `npm install`
+3. Ensure `VITE_API_BASE_URL` points to `http://localhost:8000/api/v1`
+4. `npm run dev`
+
+Backend:
+1. `cd server`
+2. Create and activate a virtual environment.
+3. `pip install -r requirements.txt`
+4. Copy `.env.example` to `.env` and set local values.
+5. `python manage.py migrate`
+6. `python manage.py runserver`
 
 ## Documentation Workflow
 1. Implement or scaffold one focused feature step.
@@ -120,7 +152,7 @@ This repository is structured to support direct writing of:
 Documentation files in docs/ are written with academic-friendly headings, numbered sections, and reusable templates for figures, labeled UI parts, and concise explanations.
 
 ## Scope Note for Early Commits
-Early commits prioritize structure and documentation readiness. They do not imply that all modules are fully implemented, tested, or production-ready.
+Current and early commits prioritize architecture, scaffold quality, and documentation traceability. They do not imply that all modules are fully implemented, security-complete, or production-ready.
 
 ## Local Docker Compose Development
 This setup is for local development only. It is not production-ready.
@@ -133,7 +165,7 @@ Included services:
 Basic startup:
 1. Copy `server/.env.example` to `server/.env` and set local secret values.
 2. From the repository root, run `docker compose --env-file server/.env up --build`.
-2. Open the frontend at `http://localhost:5173`.
+3. Open the frontend at `http://localhost:5173`.
 3. Backend API is available at `http://localhost:8000/api/v1`.
 
 Stop containers:
