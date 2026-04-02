@@ -121,3 +121,25 @@ Documentation files in docs/ are written with academic-friendly headings, number
 
 ## Scope Note for Early Commits
 Early commits prioritize structure and documentation readiness. They do not imply that all modules are fully implemented, tested, or production-ready.
+
+## Local Docker Compose Development
+This setup is for local development only. It is not production-ready.
+
+Included services:
+- client (React + Vite dev server)
+- server (Django development server)
+- postgres (PostgreSQL database)
+
+Basic startup:
+1. Copy `server/.env.example` to `server/.env` and set local secret values.
+2. From the repository root, run `docker compose --env-file server/.env up --build`.
+2. Open the frontend at `http://localhost:5173`.
+3. Backend API is available at `http://localhost:8000/api/v1`.
+
+Stop containers:
+1. Run `docker compose down`.
+2. To remove database volume data as well, run `docker compose down -v`.
+
+Frontend browser API URL note:
+- Use `http://localhost:8000/api/v1` for browser calls.
+- Do not use Docker service names like `server` in browser-facing frontend API URLs.
