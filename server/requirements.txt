@@ -1,3 +1,4 @@
-django
-djangorestframework
-djangorestframework-simplejwt
+Django==6.0.3
+djangorestframework==3.17.1
+djangorestframework-simplejwt==5.5.1
+psycopg[binary]==3.3.3
