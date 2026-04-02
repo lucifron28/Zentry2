@@ -86,12 +86,57 @@ Optional details for stronger exam documentation:
 **Date:** 2026-04-02 (backfilled)
 **Purpose:** Preserve intended protected path and return user to the intended target after successful login.
 **Pages affected:** Login Page, protected route handling, root redirect behavior
-**API endpoints:** Client targets planned `POST /api/v1/auth/login` (backend endpoint lifecycle still in progress)
-**Security note:** Access token attachment and session clearing behavior are scaffolded on the client. Refresh-token cookie flow and full backend auth lifecycle are not yet finalized.
+**API endpoints:** `POST /api/v1/auth/login/` (consumed by frontend login flow)
+**Security note:** Access token attachment and session clearing behavior are implemented on the client. Secure refresh-cookie flow and full silent refresh orchestration are not yet finalized.
 **Evidence saved:** `auth-intended-route-restore-after-login.png`
 
 Optional details for stronger exam documentation:
 - User flow summary: Attempt protected route while logged out -> redirect to login -> successful login returns to intended route.
 - Role(s) tested: Authenticated session context
 - Validation or permission behavior observed: Client-side session and route behavior verified.
-- Follow-up actions: Add backend login/refresh/logout evidence once endpoints are complete.
+- Follow-up actions: Expand to full auth lifecycle hardening after refresh strategy is finalized.
+
+## Entry 6
+### Feature: Backend Auth Foundation and Role-Aware User Model
+**Date:** 2026-04-02 (backfilled)
+**Purpose:** Establish real backend authentication baseline and role-aware user identity model for Zentry.
+**Pages affected:** Authentication API layer, backend users domain foundation, admin user management
+**API endpoints:** `POST /api/v1/auth/login/`, `POST /api/v1/auth/refresh/`, `GET /api/v1/auth/me/`
+**Security note:** Token-based auth endpoints and role model foundation are implemented. Secure refresh-cookie handling, revocation hardening, and full module-level authorization remain in progress.
+**Evidence saved:** `backend-auth-foundation-role-user-model.png`
+
+Optional details for stronger exam documentation:
+- User flow summary: Valid credentials return access/refresh tokens and safe user payload.
+- Role(s) tested: Admin, Project Manager, Team Member (model-level role values)
+- Validation or permission behavior observed: Authenticated `/auth/me/` required and protected.
+- Follow-up actions: Add logout/revocation hardening notes after implementation.
+
+## Entry 7
+### Feature: Frontend Auth Integration With Backend Auth Response Contract
+**Date:** 2026-04-02 (backfilled)
+**Purpose:** Align frontend auth API/types/store with backend login response (`access`, `refresh`, `user`).
+**Pages affected:** Login Page, protected layout session display, auth state handling
+**API endpoints:** `POST /api/v1/auth/login/`, `POST /api/v1/auth/refresh/`, `GET /api/v1/auth/me/`
+**Security note:** Session identity now uses backend user data as source of truth. No localStorage token persistence was introduced, and secure-cookie refresh is still not implemented.
+**Evidence saved:** `frontend-auth-response-contract-integration.png`
+
+Optional details for stronger exam documentation:
+- User flow summary: Login stores backend-returned user identity and updates shell session display.
+- Role(s) tested: Authenticated session context
+- Validation or permission behavior observed: Unauthorized API responses clear session state.
+- Follow-up actions: Add startup bootstrap verification screenshots.
+
+## Entry 8
+### Feature: Frontend Auth Bootstrap and Current-User Hydration Flow
+**Date:** 2026-04-02 (backfilled)
+**Purpose:** Confirm active-session user identity through `/auth/me/` when token exists but user data is missing.
+**Pages affected:** App provider bootstrap layer, protected shell identity display
+**API endpoints:** `GET /api/v1/auth/me/`
+**Security note:** Active-session hydration is implemented for in-memory sessions only. Full persistent auth across browser reloads and secure refresh-cookie strategy are not yet complete.
+**Evidence saved:** `frontend-auth-bootstrap-current-user-hydration.png`
+
+Optional details for stronger exam documentation:
+- User flow summary: App bootstrap triggers `/auth/me/` only when hydration is needed; unauthorized result clears session.
+- Role(s) tested: Authenticated and expired-session scenarios
+- Validation or permission behavior observed: Hydration failures avoid half-authenticated UI state.
+- Follow-up actions: Add silent refresh orchestration only after security strategy is finalized.

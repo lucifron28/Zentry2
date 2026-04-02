@@ -13,7 +13,9 @@ Suggested points to document:
 Use this guide format for each page so screenshots and explanations remain consistent.
 
 Current guide status:
-- Login and navigation-shell behavior are scaffolded and ready for documentation capture.
+- Login and navigation-shell behavior are implemented and ready for documentation capture.
+- Backend authentication foundation exists (login, refresh, and current-user endpoints).
+- Current-user hydration is used to confirm active in-app session identity when needed.
 - Dashboard and business modules currently use placeholder scaffold pages.
 - Detailed module walkthroughs should be completed after feature-level implementation.
 
@@ -41,8 +43,8 @@ Current guide status:
 ### 1.2.1 Login Page
 Current scaffold status:
 - Login UI is scaffolded with email/password input, form validation behavior, and submit action state handling.
-- Frontend post-login redirect behavior is scaffolded.
-- Backend authentication endpoint lifecycle is still in progress and must be documented separately when finalized.
+- Frontend post-login redirect behavior is active.
+- Backend authentication endpoints are available for login, refresh, and current-user retrieval.
 
 - Screenshot Title:
 - Figure Number:
@@ -63,8 +65,9 @@ Current scaffold status:
 - Output/Result:
   - User is redirected to intended protected route or dashboard fallback.
 - Security Note:
-  - Frontend redirect and session handling are scaffolded.
-  - Do not claim backend token lifecycle completion until backend auth endpoints are verified.
+  - Frontend redirect and session handling are implemented for active in-memory sessions.
+  - Backend auth foundation exists, but secure refresh-cookie strategy and full silent refresh orchestration are still in progress.
+  - Do not claim full persistent session restoration across browser reloads at this stage.
 - Evidence File Name:
 
 ### 1.2.2 Application Shell and Navigation Layout
@@ -101,18 +104,24 @@ Current scaffold status:
   1. Protected route URL attempt
   2. Redirected Login screen
   3. Post-login destination page
+  4. Session identity confirmation state
 - Explanation of Each Numbered Part:
   1. Demonstrates route access attempt without authenticated session.
   2. Confirms redirect to login when session is missing.
   3. Confirms intended-route restoration after successful login.
+  4. Confirms `/auth/me/` hydration when token exists and user identity needs confirmation.
 - User Action Sequence:
   1. Open a protected route while logged out.
   2. Observe redirect to login.
   3. Sign in and verify destination restoration behavior.
+  4. Observe active-session user identity confirmation in shell/topbar context.
 - Output/Result:
   - Protected routes are not rendered for unauthenticated sessions.
+  - Active in-app sessions can hydrate current-user identity from backend.
 - Security Note:
-  - Backend authorization checks remain mandatory and should be documented separately once endpoints are complete.
+  - Backend authorization checks remain mandatory and should be documented separately for each business module.
+  - If current-user hydration returns unauthorized, session is cleared to avoid half-authenticated UI state.
+  - This stage remains memory-oriented; full reload persistence is not yet claimed.
 - Evidence File Name:
 
 ### 1.2.4 Dashboard (Scaffold Placeholder)

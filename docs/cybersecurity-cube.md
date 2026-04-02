@@ -10,11 +10,13 @@ This section is a structured draft for Zentry cybersecurity documentation. Use t
 ### 2.1.1 Data Confidentiality
 Zentry-specific guidance:
 - Implemented:
+  - Backend custom user model includes explicit role values for Admin, Project Manager, and Team Member.
+  - Backend auth endpoints exist for login, refresh, and current-user retrieval.
   - Frontend route guards separate public and protected layouts.
   - Frontend auth session state controls access to protected shell routes.
   - Client request interceptor attaches Bearer access token when available.
 - In Progress:
-  - Backend authentication endpoint lifecycle (login, refresh, logout) is being completed.
+  - Logout/revocation hardening beyond baseline session clearing.
   - Module-level and object-level backend authorization wiring is ongoing.
 - Planned:
   - Finalized authorization matrices per module and role.
@@ -58,9 +60,11 @@ Zentry-specific guidance:
 - Implemented:
   - Access token attachment via frontend Axios interceptor is configured.
   - API base URL is environment-driven on the frontend.
-  - Session-clearing behavior on unauthorized responses is scaffolded.
+  - Authenticated login and refresh endpoint exchange is implemented in backend and consumed by frontend.
+  - Current-user hydration via `/auth/me/` is implemented for active in-memory sessions.
+  - Unauthorized current-user hydration clears invalid session state.
 - In Progress:
-  - End-to-end authenticated request/response lifecycle across completed backend auth endpoints.
+  - Full silent refresh orchestration and retry strategy in frontend lifecycle.
 - Planned:
   - Secure refresh-token cookie strategy and finalized token refresh flow.
   - Deployment-grade transport policies and enforcement checks.
@@ -85,7 +89,8 @@ Zentry-specific guidance:
 ### 2.2.3 Data In Process
 Zentry-specific guidance:
 - Implemented:
-  - Frontend protected route checks and intended-route redirect restoration are scaffolded.
+  - Frontend protected route checks and intended-route redirect restoration are active.
+  - Active-session identity confirmation runs through current-user hydration when required.
 - In Progress:
   - Server-side permission evaluation for module actions is being expanded.
   - Role-aware and object-level checks are not yet complete across all endpoints.
@@ -100,8 +105,9 @@ Zentry-specific guidance:
 ### 2.3.1 Technology
 Zentry-specific guidance:
 - Implemented:
-  - Django, DRF, SimpleJWT, and centralized frontend Axios client scaffolding are in place.
-  - Frontend session-aware route guarding and request token attachment behavior are implemented at scaffold level.
+  - Django, DRF, SimpleJWT, and centralized frontend Axios client integration are in place.
+  - Backend auth endpoints (`/auth/login/`, `/auth/refresh/`, `/auth/me/`) are implemented.
+  - Frontend route guarding, request token attachment, and current-user hydration are implemented for active sessions.
 - In Progress:
   - Endpoint-level permission and validation wiring by module.
   - Audit logging integration across feature actions.

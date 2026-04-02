@@ -71,20 +71,30 @@ zentry2/
 Current status summary:
 - The repository is now well-scaffolded for development and documentation tracking.
 - Frontend shell and navigation structure are implemented, with placeholder module pages for staged feature rollout.
-- Backend project structure and security framework setup exist, but core business endpoints and full module behavior are still in progress.
+- Backend authentication foundation is implemented, while core business module behavior is still in progress.
 
-Implemented scaffolding highlights:
+Implemented auth and scaffold highlights:
 - Local Docker Compose development stack for client, server, and postgres.
 - Frontend styling foundation with Tailwind CSS v4 and daisyUI 5.
 - Approved daisyUI theme registration with configured default/preferred-dark behavior.
 - Public and protected layout separation.
 - App shell foundation with sidebar, topbar, and reusable loading/error/empty states.
-- Frontend auth session and redirect flow scaffolding (intended-route restoration after login).
+- Backend custom user model with explicit roles: Admin, Project Manager, Team Member.
+- Backend authentication endpoints are live under `/api/v1/auth/`:
+	- `POST /auth/login/`
+	- `POST /auth/refresh/`
+	- `GET /auth/me/`
+- Frontend login response typing and auth store now consume backend auth payload (`access`, `refresh`, `user`).
+- Frontend current-user hydration is active via `/auth/me/` during app bootstrap when needed.
+- Unauthorized current-user hydration clears invalid session state to avoid half-authenticated UI.
+- Redirect restoration and logout flow remain active.
 
 In-progress areas:
-- Backend authentication endpoint lifecycle (login/refresh/logout flow completion).
+- Secure refresh-cookie strategy and full silent refresh orchestration.
+- Logout/revocation hardening beyond current session clearing behavior.
 - Module-specific CRUD APIs and object-level authorization behavior.
 - Finalized audit logging integration across all protected actions.
+- Production deployment and hardening controls.
 
 ## Setup (Local Development)
 These instructions are for local development. Production deployment guidance is intentionally out of scope at this stage.
@@ -166,7 +176,7 @@ Basic startup:
 1. Copy `server/.env.example` to `server/.env` and set local secret values.
 2. From the repository root, run `docker compose --env-file server/.env up --build`.
 3. Open the frontend at `http://localhost:5173`.
-3. Backend API is available at `http://localhost:8000/api/v1`.
+4. Backend API is available at `http://localhost:8000/api/v1`.
 
 Stop containers:
 1. Run `docker compose down`.
