@@ -1,61 +1,152 @@
+import { zodResolver } from '@hookform/resolvers/zod'
+import axios from 'axios'
 import { useState } from 'react'
-import type { FormEvent } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
+import { useForm, type SubmitHandler } from 'react-hook-form'
 import { useLogin } from '@/features/auth/hooks/useLogin'
-import { loginSchema } from '@/features/auth/schemas/loginSchema'
+import { loginSchema, type LoginInput } from '@/features/auth/schemas/loginSchema'
+import { resolvePostLoginPath } from '@/features/auth/utils/redirect'
+import { APP_ROUTES } from '@/shared/constants/routes'
+import { FormInput } from '@/shared/ui/form'
 
-export function LoginForm() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [errorMessage, setErrorMessage] = useState<string | null>(null)
-  const loginMutation = useLogin()
+type LoginApiErrorShape = {
+  detail?: unknown
+  non_field_errors?: unknown
+  email?: unknown
+  password?: unknown
+}
 
-  const onSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
+type ParsedLoginErrors = {
+  fieldErrors: Partial<Record<keyof LoginInput, string>>
+  formError?: string
+}
 
-    const parsed = loginSchema.safeParse({ email, password })
-    if (!parsed.success) {
-      setErrorMessage(parsed.error.issues[0]?.message ?? 'Invalid login details.')
-      return
-    }
-
-    setErrorMessage(null)
-    loginMutation.mutate(parsed.data)
+function firstErrorMessage(value: unknown): string | undefined {
+  if (typeof value === 'string') {
+    return value
   }
 
+  if (Array.isArray(value)) {
+    const firstString = value.find((item) => typeof item === 'string')
+    return typeof firstString === 'string' ? firstString : undefined
+  }
+
+  return undefined
+}
+
+function parseLoginErrors(error: unknown): ParsedLoginErrors {
+  if (!axios.isAxiosError(error) || !error.response?.data || typeof error.response.data !== 'object') {
+    return {
+      fieldErrors: {},
+      formError: 'Unable to sign in. Please try again.',
+    }
+  }
+
+  const data = error.response.data as LoginApiErrorShape
+  const fieldErrors: ParsedLoginErrors['fieldErrors'] = {}
+
+  const emailError = firstErrorMessage(data.email)
+  if (emailError) {
+    fieldErrors.email = emailError
+  }
+
+  const passwordError = firstErrorMessage(data.password)
+  if (passwordError) {
+    fieldErrors.password = passwordError
+  }
+
+  const formError =
+    firstErrorMessage(data.non_field_errors) ??
+    firstErrorMessage(data.detail) ??
+    (Object.keys(fieldErrors).length ? undefined : 'Unable to sign in. Please try again.')
+
+  return {
+    fieldErrors,
+    formError,
+  }
+}
+
+export function LoginForm() {
+  const [serverError, setServerError] = useState<string | null>(null)
+
+  const location = useLocation()
+  const navigate = useNavigate()
+
+  const redirectTo = resolvePostLoginPath(
+    location.state as { from?: unknown } | null,
+    APP_ROUTES.dashboard,
+  )
+
+  const loginMutation = useLogin({
+    onSuccess: () => {
+      navigate(redirectTo, { replace: true })
+    },
+  })
+
+  const {
+    register,
+    handleSubmit,
+    setError,
+    formState: { errors },
+  } = useForm<LoginInput>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: '',
+      password: '',
+    },
+    mode: 'onSubmit',
+    reValidateMode: 'onChange',
+  })
+
+  const onSubmit: SubmitHandler<LoginInput> = async (values) => {
+    setServerError(null)
+
+    try {
+      await loginMutation.mutateAsync(values)
+    } catch (error) {
+      const parsedErrors = parseLoginErrors(error)
+
+      if (parsedErrors.fieldErrors.email) {
+        setError('email', { type: 'server', message: parsedErrors.fieldErrors.email })
+      }
+
+      if (parsedErrors.fieldErrors.password) {
+        setError('password', { type: 'server', message: parsedErrors.fieldErrors.password })
+      }
+
+      if (parsedErrors.formError) {
+        setServerError(parsedErrors.formError)
+      }
+    }
+  }
+
+
   return (
-    <form className="card w-full max-w-md bg-base-100 shadow-xl" onSubmit={onSubmit}>
+    <form className="card w-full max-w-md bg-base-100 shadow-xl" onSubmit={handleSubmit(onSubmit)}>
       <div className="card-body gap-4">
         <h2 className="card-title text-2xl">Sign in</h2>
 
-        <label className="form-control w-full gap-2">
-          <span className="label-text">Email</span>
-          <input
-            className="input input-bordered w-full"
-            type="email"
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-            autoComplete="email"
-            required
-          />
-        </label>
+        <FormInput
+          label="Email"
+          type="email"
+          autoComplete="email"
+          registration={register('email')}
+          error={errors.email?.message}
+          disabled={loginMutation.isPending}
+          required
+        />
 
-        <label className="form-control w-full gap-2">
-          <span className="label-text">Password</span>
-          <input
-            className="input input-bordered w-full"
-            type="password"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            autoComplete="current-password"
-            required
-          />
-        </label>
+        <FormInput
+          label="Password"
+          type="password"
+          autoComplete="current-password"
+          registration={register('password')}
+          error={errors.password?.message}
+          disabled={loginMutation.isPending}
+          required
+        />
 
-        {errorMessage ? <p className="text-sm text-error">{errorMessage}</p> : null}
-
-        {loginMutation.isError ? (
-          <p className="text-sm text-error">Unable to sign in. Please try again.</p>
-        ) : null}
+        {serverError ? <p className="text-sm text-error">{serverError}</p> : null}
 
         <button className="btn btn-primary" type="submit" disabled={loginMutation.isPending}>
           {loginMutation.isPending ? 'Signing in...' : 'Sign in'}
