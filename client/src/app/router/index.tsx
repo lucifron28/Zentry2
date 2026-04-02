@@ -2,14 +2,14 @@ import { Navigate, RouterProvider, createBrowserRouter } from 'react-router-dom'
 import { ModuleScaffoldPage } from '@/app/pages/ModuleScaffoldPage'
 import { ProtectedLayout } from '@/app/layouts/ProtectedLayout'
 import { PublicLayout } from '@/app/layouts/PublicLayout'
+import { useAuthSession } from '@/features/auth/hooks/useAuthSession'
 import { LoginPage } from '@/features/auth/pages/LoginPage'
-import { useAuthStore } from '@/features/auth/store/authStore'
 import { APP_ROUTES } from '@/shared/constants/routes'
 
 function RootRedirect() {
-  const accessToken = useAuthStore((state) => state.accessToken)
+  const { isAuthenticated } = useAuthSession()
 
-  if (accessToken) {
+  if (isAuthenticated) {
     return <Navigate replace to={APP_ROUTES.dashboard} />
   }
 
