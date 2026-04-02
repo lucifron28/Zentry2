@@ -1,5 +1,15 @@
 @import "tailwindcss";
-@plugin "daisyui";
+@plugin "daisyui" {
+  themes:
+    light --default,
+    dark --prefersdark,
+    cupcake,
+    synthwave,
+    dracula,
+    night,
+    caramellatte,
+    nord;
+}
 
 @layer base {
   html,
