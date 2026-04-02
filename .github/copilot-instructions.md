@@ -97,3 +97,12 @@ You are working on **Zentry**, a full-stack web application.
 - Do not generate placeholder security claims without implementing them.
 - Explain tradeoffs briefly when relevant.
 - When uncertain about compatibility, say so clearly and suggest the safest supported option.
+
+## Current Scaffold Status
+- Local Docker Compose development is available for client, server, and postgres.
+- Frontend styling foundation is already configured with Tailwind CSS v4 and daisyUI 5.
+- Approved daisyUI themes are already registered.
+- Public and protected layouts are already scaffolded.
+- App shell with sidebar, topbar, and reusable loading/error/empty states already exists.
+- Frontend auth session handling and intended-route redirect restoration are already scaffolded.
+- Backend authentication endpoints are the next major implementation target.

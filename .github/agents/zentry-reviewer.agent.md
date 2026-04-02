@@ -39,3 +39,9 @@ Return:
 - Do not nitpick trivial style points unless they affect maintainability
 - Prioritize correctness, security, and clarity
 - Prefer realistic fixes over large rewrites
+
+## Documentation Sync Rules
+- After each meaningful implementation milestone, update the corresponding docs scaffold if it becomes materially outdated.
+- Feature log entries should be added for real repo milestones, not only future placeholders.
+- Manual-outline content should gradually reflect real screen structure as pages become screenshot-ready.
+- Cybersecurity notes must distinguish implemented, in progress, and planned controls.

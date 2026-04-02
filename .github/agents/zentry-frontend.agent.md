@@ -50,3 +50,9 @@ Always think about:
 - shared UI primitives
 - query hooks and mutation hooks where useful
 - form schemas kept close to their forms
+
+## Frontend Stability Rules
+- Do not re-scaffold Tailwind CSS v4 or daisyUI 5; they are already configured.
+- Do not replace the existing public/protected layout split unless there is a clear architectural reason.
+- Reuse the current app shell, sidebar, topbar, and shared state components when building new pages.
+- Keep future feature pages consistent with the existing shell and theme setup.

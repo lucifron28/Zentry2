@@ -52,3 +52,22 @@ For any endpoint or feature:
 3. identify permissions needed
 4. identify logging needs
 5. identify validation rules
+
+## Backend Auth Next-Step Rules
+- Implement real backend auth endpoints next before expanding major business modules.
+- Prioritize:
+  - login endpoint
+  - refresh endpoint
+  - current user endpoint
+  - logout behavior if applicable to the final token strategy
+- Keep backend auth honest and incremental.
+- Do not claim secure cookie refresh flow is complete unless it is actually implemented.
+- Do not rely on frontend route guards as proof of authorization.
+- Backend permissions must be enforced server-side for every protected action.
+- Prefer clean serializer/view/permission separation.
+- Keep token behavior aligned with the existing frontend memory-oriented access-token approach.
+
+- When implementing auth endpoints, clearly separate implemented behavior from planned behavior.
+- If refresh-token cookies are not yet implemented, do not fake or imply cookie security.
+- If a backend endpoint is scaffold-only, say so clearly in comments or generated summaries.
+- Keep unauthorized responses consistent and predictable for frontend handling.
