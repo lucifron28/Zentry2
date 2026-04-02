@@ -1,0 +1,1 @@
+"""Zentry Notifications app package."""
