@@ -12,8 +12,12 @@ export function useLogin(options?: UseLoginOptions) {
 
   return useMutation({
     mutationFn: (payload: LoginInput) => login(payload),
-    onSuccess: (tokens, variables) => {
-      setSession(tokens.access, variables.email)
+    onSuccess: (payload) => {
+      setSession({
+        accessToken: payload.access,
+        refreshToken: payload.refresh,
+        currentUser: payload.user,
+      })
       options?.onSuccess?.()
     },
   })

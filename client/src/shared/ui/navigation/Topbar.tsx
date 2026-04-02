@@ -1,12 +1,12 @@
 type TopbarProps = {
   title: string
   subtitle?: string
-  userEmail: string | null
+  userIdentity: string | null
   onToggleSidebar: () => void
   onLogout: () => void
 }
 
-export function Topbar({ title, subtitle, userEmail, onToggleSidebar, onLogout }: TopbarProps) {
+export function Topbar({ title, subtitle, userIdentity, onToggleSidebar, onLogout }: TopbarProps) {
   return (
     <header className="sticky top-0 z-20 border-b border-base-300 bg-base-100/90 backdrop-blur">
       <div className="flex items-start justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
@@ -24,7 +24,7 @@ export function Topbar({ title, subtitle, userEmail, onToggleSidebar, onLogout }
         <div className="flex items-center gap-3">
           <div className="hidden text-right sm:block">
             <p className="text-xs uppercase tracking-[0.14em] text-base-content/60">Session</p>
-            <p className="max-w-56 truncate text-sm font-medium text-base-content">{userEmail ?? 'Authenticated user'}</p>
+            <p className="max-w-56 truncate text-sm font-medium text-base-content">{userIdentity ?? 'Authenticated user'}</p>
           </div>
 
           <button className="btn btn-sm btn-outline" onClick={onLogout}>

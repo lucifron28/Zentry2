@@ -16,6 +16,12 @@ type LoginApiErrorShape = {
   password?: unknown
 }
 
+type ApiErrorEnvelope = {
+  error?: {
+    details?: unknown
+  }
+}
+
 type ParsedLoginErrors = {
   fieldErrors: Partial<Record<keyof LoginInput, string>>
   formError?: string
@@ -42,7 +48,12 @@ function parseLoginErrors(error: unknown): ParsedLoginErrors {
     }
   }
 
-  const data = error.response.data as LoginApiErrorShape
+  const responseData = error.response.data as LoginApiErrorShape & ApiErrorEnvelope
+  const data =
+    responseData.error && typeof responseData.error.details === 'object'
+      ? (responseData.error.details as LoginApiErrorShape)
+      : responseData
+
   const fieldErrors: ParsedLoginErrors['fieldErrors'] = {}
 
   const emailError = firstErrorMessage(data.email)
@@ -55,14 +66,11 @@ function parseLoginErrors(error: unknown): ParsedLoginErrors {
     fieldErrors.password = passwordError
   }
 
-  const formError =
-    firstErrorMessage(data.non_field_errors) ??
-    firstErrorMessage(data.detail) ??
-    (Object.keys(fieldErrors).length ? undefined : 'Unable to sign in. Please try again.')
+  const formError = firstErrorMessage(data.non_field_errors) ?? firstErrorMessage(data.detail)
 
   return {
     fieldErrors,
-    formError,
+    formError: formError || (Object.keys(fieldErrors).length ? undefined : 'Unable to sign in. Please try again.'),
   }
 }
 

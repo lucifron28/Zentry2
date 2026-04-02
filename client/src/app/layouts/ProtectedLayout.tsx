@@ -12,7 +12,7 @@ type RouteHandle = {
 }
 
 export function ProtectedLayout() {
-  const { isAuthenticated, userEmail } = useAuthSession()
+  const { isAuthenticated, userDisplayName } = useAuthSession()
   const logout = useLogout()
 
   const location = useLocation()
@@ -32,7 +32,7 @@ export function ProtectedLayout() {
   const subtitle = currentHandle?.subtitle
 
   return (
-    <AppShell title={title} subtitle={subtitle} userEmail={userEmail} onLogout={logout}>
+    <AppShell title={title} subtitle={subtitle} userIdentity={userDisplayName} onLogout={logout}>
       <Outlet />
     </AppShell>
   )

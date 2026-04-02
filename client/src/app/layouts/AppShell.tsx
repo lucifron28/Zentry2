@@ -6,16 +6,16 @@ import { Topbar } from '@/shared/ui/navigation/Topbar'
 type AppShellProps = PropsWithChildren<{
   title: string
   subtitle?: string
-  userEmail: string | null
+  userIdentity: string | null
   onLogout: () => void
 }>
 
-export function AppShell({ children, title, subtitle, userEmail, onLogout }: AppShellProps) {
+export function AppShell({ children, title, subtitle, userIdentity, onLogout }: AppShellProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   return (
     <div className="min-h-screen bg-base-200/50">
-      <div className="mx-auto flex min-h-screen w-full max-w-1000">
+      <div className="mx-auto flex min-h-screen w-full max-w-250">
         <Sidebar className="hidden lg:block" />
 
         {sidebarOpen ? (
@@ -33,7 +33,7 @@ export function AppShell({ children, title, subtitle, userEmail, onLogout }: App
           <Topbar
             title={title}
             subtitle={subtitle}
-            userEmail={userEmail}
+            userIdentity={userIdentity}
             onToggleSidebar={() => setSidebarOpen(true)}
             onLogout={onLogout}
           />
