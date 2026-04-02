@@ -15,7 +15,7 @@ export function AppShell({ children, title, subtitle, userIdentity, onLogout }: 
 
   return (
     <div className="min-h-screen bg-base-200/50">
-      <div className="mx-auto flex min-h-screen w-full max-w-250">
+      <div className="mx-auto flex min-h-screen w-full max-w-5xl">
         <Sidebar className="hidden lg:block" />
 
         {sidebarOpen ? (
