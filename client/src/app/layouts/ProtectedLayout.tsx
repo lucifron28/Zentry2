@@ -1,7 +1,9 @@
-import { Navigate, Outlet, useLocation, useMatches, useNavigate } from 'react-router-dom'
+import { Navigate, Outlet, useLocation, useMatches } from 'react-router-dom'
 
 import { AppShell } from '@/app/layouts/AppShell'
-import { useAuthStore } from '@/features/auth/store/authStore'
+import { useAuthSession } from '@/features/auth/hooks/useAuthSession'
+import { useLogout } from '@/features/auth/hooks/useLogout'
+import { buildIntendedPath } from '@/features/auth/utils/redirect'
 import { APP_ROUTES } from '@/shared/constants/routes'
 
 type RouteHandle = {
@@ -10,16 +12,15 @@ type RouteHandle = {
 }
 
 export function ProtectedLayout() {
-  const accessToken = useAuthStore((state) => state.accessToken)
-  const userEmail = useAuthStore((state) => state.userEmail)
-  const clearSession = useAuthStore((state) => state.clearSession)
+  const { isAuthenticated, userEmail } = useAuthSession()
+  const logout = useLogout()
 
   const location = useLocation()
-  const navigate = useNavigate()
   const matches = useMatches()
 
-  if (!accessToken) {
-    return <Navigate replace to={APP_ROUTES.login} state={{ from: location.pathname }} />
+  if (!isAuthenticated) {
+    const intendedPath = buildIntendedPath(location.pathname, location.search, location.hash)
+    return <Navigate replace to={APP_ROUTES.login} state={{ from: intendedPath }} />
   }
 
   const currentHandle = matches
@@ -30,13 +31,8 @@ export function ProtectedLayout() {
   const title = currentHandle?.title ?? 'Workspace'
   const subtitle = currentHandle?.subtitle
 
-  function handleLogout() {
-    clearSession()
-    navigate(APP_ROUTES.login, { replace: true })
-  }
-
   return (
-    <AppShell title={title} subtitle={subtitle} userEmail={userEmail} onLogout={handleLogout}>
+    <AppShell title={title} subtitle={subtitle} userEmail={userEmail} onLogout={logout}>
       <Outlet />
     </AppShell>
   )
