@@ -8,4 +8,5 @@ export const APP_ROUTES = {
   attachments: '/attachments',
   notifications: '/notifications',
   activityLogs: '/activity-logs',
+  userManagement: '/user-management',
 } as const
