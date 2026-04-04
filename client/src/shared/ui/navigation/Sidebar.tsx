@@ -41,8 +41,8 @@ export function Sidebar({ className, onNavigate }: SidebarProps) {
           ))}
         </nav>
 
-        <div className="border-t border-base-300 px-5 py-4 text-xs text-base-content/60">
-          Layout scaffold for module integration
+        <div className="border-t border-base-300 px-5 py-4 text-xs text-base-content/45">
+          Zentry v0.1 · Team Workspace
         </div>
       </div>
     </aside>
