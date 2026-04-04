@@ -4,6 +4,9 @@ import { ProtectedLayout } from '@/app/layouts/ProtectedLayout'
 import { PublicLayout } from '@/app/layouts/PublicLayout'
 import { useAuthSession } from '@/features/auth/hooks/useAuthSession'
 import { LoginPage } from '@/features/auth/pages/LoginPage'
+import { DashboardPage } from '@/features/dashboard/pages/DashboardPage'
+import { ProjectsPage } from '@/features/projects/pages/ProjectsPage'
+import { ProjectDetailPage } from '@/features/projects/pages/ProjectDetailPage'
 import { APP_ROUTES } from '@/shared/constants/routes'
 
 function RootRedirect() {
@@ -36,12 +39,7 @@ const router = createBrowserRouter([
     children: [
       {
         path: APP_ROUTES.dashboard,
-        element: (
-          <ModuleScaffoldPage
-            title="Dashboard"
-            description="Track summary metrics and current progress snapshots for projects and tasks."
-          />
-        ),
+        element: <DashboardPage />,
         handle: {
           title: 'Dashboard',
           subtitle: 'Overview of active work and updates.',
@@ -49,15 +47,18 @@ const router = createBrowserRouter([
       },
       {
         path: APP_ROUTES.projects,
-        element: (
-          <ModuleScaffoldPage
-            title="Projects"
-            description="Organize project records, milestones, and assigned team members in one place."
-          />
-        ),
+        element: <ProjectsPage />,
         handle: {
           title: 'Projects',
           subtitle: 'Project planning and management workspace.',
+        },
+      },
+      {
+        path: `${APP_ROUTES.projects}/:id`,
+        element: <ProjectDetailPage />,
+        handle: {
+          title: 'Project Details',
+          subtitle: 'Milestones, team, and activity for this project.',
         },
       },
       {
