@@ -140,3 +140,18 @@ Optional details for stronger exam documentation:
 - Role(s) tested: Authenticated and expired-session scenarios
 - Validation or permission behavior observed: Hydration failures avoid half-authenticated UI state.
 - Follow-up actions: Add revocation-hardening and token-blacklist behavior after implementation.
+
+## Entry 9
+### Feature: Project Detail and Dashboard Real-Data Integration
+**Date:** 2026-04-04
+**Purpose:** Replaced hallucinatory/mock content across the Dashboard and Project modules with real backend-driven queries and honest empty/in-progress states.
+**Pages affected:** Dashboard Page, Projects Page, Project Detail Page
+**API endpoints:** `GET /api/v1/projects/`, `GET /api/v1/tasks/`
+**Security note:** UI components now cleanly reflect what is backed by current endpoints. No module-level authorization logic was bypassed to fake data.
+**Evidence saved:** `dashboard-and-projects-realism-cleanup.png`
+
+Optional details for stronger exam documentation:
+- User flow summary: Users now see actual focus tasks, real progress insights, and authentic member lists, with explicitly labeled placeholder areas for undeveloped modules like activity feeds and milestones.
+- Role(s) tested: Authenticated session context
+- Validation or permission behavior observed: Components cleanly render empty states when arrays are authentically empty in backend responses.
+- Follow-up actions: Start building the API backing for Milestones and Activity Logs.

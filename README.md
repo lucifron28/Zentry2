@@ -70,8 +70,8 @@ zentry2/
 ## Current Development Status
 Current status summary:
 - The repository is now well-scaffolded for development and documentation tracking.
-- Frontend shell and navigation structure are implemented, with placeholder module pages for staged feature rollout.
-- Backend authentication foundation is implemented, while core business module behavior is still in progress.
+- Frontend shell and navigation structure are implemented. The Projects and Dashboard modules have moved beyond scaffold-only states and now consume real backend data, utilizing honest empty states for any features still under development.
+- Backend authentication is implemented utilizing an HttpOnly refresh cookie and memory-only access token.
 
 Implemented auth and scaffold highlights:
 - Local Docker Compose development stack for client, server, and postgres.

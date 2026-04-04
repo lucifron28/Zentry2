@@ -16,8 +16,9 @@ Current guide status:
 - Login and navigation-shell behavior are implemented and ready for documentation capture.
 - Backend authentication foundation exists (login, refresh, and current-user endpoints).
 - Current-user hydration is used to confirm active in-app session identity when needed.
-- Dashboard and business modules currently use placeholder scaffold pages.
-- Detailed module walkthroughs should be completed after feature-level implementation.
+- Dashboard, Projects, and Focus Tasks have been integrated with backend data sources where active.
+- Features like Milestones and Activity Logs remain explicitly labeled as in-progress placeholders.
+- Detailed module walkthroughs will expand as those remaining placeholders are finished.
 
 ### Reusable Page Evidence Format
 - Screenshot Title:
@@ -125,42 +126,45 @@ Current scaffold status:
   - Access token state remains memory-oriented; reload restoration depends on a valid HttpOnly refresh cookie.
 - Evidence File Name:
 
-### 1.2.4 Dashboard (Scaffold Placeholder)
-Current scaffold status:
-- Dashboard route is currently a structured placeholder inside the app shell.
-- Real dashboard widgets and backend-integrated metrics are in progress.
+### 1.2.4 Dashboard
+Current status:
+- The dashboard is active and queries real data for active projects, stats, and focus tasks.
+- Insight metrics and recent activity feeds are not yet fully supported and clearly show honest empty states.
 
 - Screenshot Title:
 - Figure Number:
 - Numbered UI Labels:
-  1. Page heading/title area
-  2. Placeholder state panel
-  3. Navigation context in shell
+  1. Top stat row (Projects, Tasks, Pendings)
+  2. Active Projects panel
+  3. Focus Tasks panel
+  4. In-progress Insight/Activity panels
 - Explanation of Each Numbered Part:
-  1. Identifies current module route.
-  2. Indicates feature content is pending implementation.
-  3. Shows available scaffold navigation paths.
+  1. Summarizes high-level user assignment metrics.
+  2. Shows up to 5 real active projects the user is involved in.
+  3. Shows user's assigned in-progress tasks ordered by due date.
+  4. Explicitly labeled empty states indicating analytical scope is still under integration.
 - Security Note:
-  - Do not claim dashboard data authorization behavior until backend endpoints are active.
+  - Dashboard panels query DRF endpoints that enforce user assignment authorization logic.
 - Evidence File Name:
 
-### 1.2.5 Projects Module (Scaffold Placeholder)
-Current scaffold status:
-- Projects route currently renders placeholder content within the protected shell.
-- Project CRUD, member assignment, and filtering behavior are planned.
+### 1.2.5 Projects Module
+Current status:
+- The Projects list and Project Detail pages are wired to real backend endpoints.
+- Base data like title, priority, status, completion progress, and member assignment are functional.
+- Milestone tracking and activity feed components display honest empty placeholders while backend work catches up.
 
 - Screenshot Title:
 - Figure Number:
 - Numbered UI Labels:
-  1. Projects route title
-  2. Placeholder message panel
-  3. Shell navigation area
+  1. Project list metrics/table
+  2. Detailed view and members panel
+  3. In-progress milestones placeholder
 - Explanation of Each Numbered Part:
-  1. Confirms route-level scaffold for Projects.
-  2. States that functional content is pending implementation.
-  3. Allows movement to other scaffolded modules.
+  1. Renders live project state from the database.
+  2. Shows assigned team members handling this specific environment boundary.
+  3. Makes it clear which tracking functions are not yet finalized structurally.
 - Security Note:
-  - Role-based project visibility is planned but not yet final.
+  - Role-based project visibility and member modifications (Admin / Owner vs generic Member) are partially structured on the frontend and must align with the DRF endpoint checks.
 - Evidence File Name:
 
 ### 1.2.6 Tasks Module (Scaffold Placeholder)
