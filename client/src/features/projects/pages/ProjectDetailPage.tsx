@@ -110,8 +110,8 @@ export function ProjectDetailPage() {
       (currentUser.role === 'admin' || normalizeId(currentUser.id) === normalizeId(project.owner?.id)),
   )
 
-  const milestones = []
-  const activity = []
+  const milestones: any[] = []
+  const activity: any[] = []
 
   const membersWithRoles = (project.members || []).map((m: ApiUser) => ({
     ...m,

@@ -8,10 +8,10 @@ import { useProjects } from '@/features/projects/hooks/useProjects'
 import type { ProjectStatus } from '@/shared/ui/data/StatusBadge'
 
 const INSIGHT = {
-  headline: 'Horizon Terminal Phase II is ahead of schedule',
-  body: 'At 64% completion, current velocity suggests a finish 12 days before the Oct 24 deadline.',
-  healthScore: 87,
-  healthLabel: 'Overall system projects are running 15% more efficiently than last quarter.',
+  headline: 'Insight metrics are still being integrated',
+  body: 'This panel is intentionally limited until evidence-based project analytics are available from backend support.',
+  healthScore: 0,
+  healthLabel: 'Trend analysis and predictive insights are intentionally out of scope for this pass.',
 }
 
 export function ProjectsPage() {
