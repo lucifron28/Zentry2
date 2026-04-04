@@ -8,10 +8,8 @@ export async function login(payload: LoginInput): Promise<AuthLoginResponse> {
   return response.data
 }
 
-export async function refreshAccessToken(refreshToken: string): Promise<AuthRefreshResponse> {
-  const response = await httpClient.post<AuthRefreshResponse>(AUTH_ENDPOINTS.refresh, {
-    refresh: refreshToken,
-  })
+export async function refreshAccessToken(): Promise<AuthRefreshResponse> {
+  const response = await httpClient.post<AuthRefreshResponse>(AUTH_ENDPOINTS.refresh)
   return response.data
 }
 
@@ -19,3 +17,8 @@ export async function getCurrentUser(): Promise<AuthUser> {
   const response = await httpClient.get<AuthUser>(AUTH_ENDPOINTS.me)
   return response.data
 }
+
+export async function logout(): Promise<void> {
+  await httpClient.post(AUTH_ENDPOINTS.logout)
+}
+
