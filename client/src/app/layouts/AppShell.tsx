@@ -14,35 +14,39 @@ export function AppShell({ children, title, subtitle, userIdentity, onLogout }: 
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   return (
-    <div className="min-h-screen bg-base-200/50">
-      <div className="mx-auto flex min-h-screen w-full max-w-5xl">
-        <Sidebar className="hidden lg:block" />
+    <div className="flex h-screen w-full overflow-hidden bg-base-200/40">
+      {/* Desktop sidebar — flush left, full height, own scroll */}
+      <Sidebar className="hidden lg:flex" />
 
-        {sidebarOpen ? (
-          <div className="fixed inset-0 z-40 lg:hidden" role="dialog" aria-modal="true">
-            <button
-              className="absolute inset-0 bg-base-content/35"
-              onClick={() => setSidebarOpen(false)}
-              aria-label="Close navigation"
-            />
-            <Sidebar className="relative z-10 h-full" onNavigate={() => setSidebarOpen(false)} />
-          </div>
-        ) : null}
-
-        <div className="flex min-h-screen min-w-0 flex-1 flex-col">
-          <Topbar
-            title={title}
-            subtitle={subtitle}
-            userIdentity={userIdentity}
-            onToggleSidebar={() => setSidebarOpen(true)}
-            onLogout={onLogout}
+      {/* Mobile sidebar overlay */}
+      {sidebarOpen ? (
+        <div className="fixed inset-0 z-40 lg:hidden" role="dialog" aria-modal="true">
+          <button
+            className="absolute inset-0 bg-base-content/30"
+            onClick={() => setSidebarOpen(false)}
+            aria-label="Close navigation"
           />
-
-          <main className="flex-1 px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
-            <div className="mx-auto w-full max-w-6xl">{children}</div>
-          </main>
+          <Sidebar className="relative z-10 flex h-full" onNavigate={() => setSidebarOpen(false)} />
         </div>
+      ) : null}
+
+      {/* Main content column */}
+      <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
+        <Topbar
+          title={title}
+          subtitle={subtitle}
+          userIdentity={userIdentity}
+          onToggleSidebar={() => setSidebarOpen(true)}
+          onLogout={onLogout}
+        />
+
+        <main className="flex-1 overflow-y-auto">
+          <div className="mx-auto w-full max-w-screen-xl px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
+            {children}
+          </div>
+        </main>
       </div>
     </div>
   )
 }
+
