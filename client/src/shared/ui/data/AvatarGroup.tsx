@@ -1,14 +1,17 @@
+import type { ApiUser } from '@/features/projects/types/project'
+
 const MAX_VISIBLE = 4
 
-type Member = {
-  id: string
-  name: string
-  initials: string
+type AvatarGroupProps = {
+  members: ApiUser[]
+  size?: 'xs' | 'sm' | 'md'
 }
 
-type AvatarGroupProps = {
-  members: Member[]
-  size?: 'xs' | 'sm' | 'md'
+function getInitials(name: string) {
+  if (!name) return '?'
+  const parts = name.split(' ').filter(Boolean)
+  if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase()
+  return name.slice(0, 2).toUpperCase()
 }
 
 const SIZE_CLASSES: Record<string, string> = {
@@ -30,7 +33,7 @@ export function AvatarGroup({ members, size = 'sm' }: AvatarGroupProps) {
             'avatar placeholder ring-2 ring-base-100',
             SIZE_CLASSES[size],
           ].join(' ')}
-          title={member.name}
+          title={member.display_name}
         >
           <div
             className={[
@@ -38,7 +41,7 @@ export function AvatarGroup({ members, size = 'sm' }: AvatarGroupProps) {
               SIZE_CLASSES[size],
             ].join(' ')}
           >
-            <span>{member.initials}</span>
+            <span>{getInitials(member.display_name)}</span>
           </div>
         </div>
       ))}
@@ -63,4 +66,3 @@ export function AvatarGroup({ members, size = 'sm' }: AvatarGroupProps) {
   )
 }
 
-export type { Member }
