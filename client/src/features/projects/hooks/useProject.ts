@@ -1,15 +1,10 @@
 import { useQuery } from '@tanstack/react-query'
-import { httpClient } from '@/services/api/client/httpClient'
-import { PROJECTS_ENDPOINTS } from '@/services/api/endpoints/projectsEndpoints'
-import type { Project } from '../types/project'
+import { getProjectById } from '@/features/projects/api/projectsApi'
 
 export function useProject(id: string | number) {
   return useQuery({
     queryKey: ['project', id],
-    queryFn: async () => {
-      const { data } = await httpClient.get<Project>(PROJECTS_ENDPOINTS.detail(id))
-      return data
-    },
+    queryFn: async () => getProjectById(id),
     enabled: !!id,
   })
 }
