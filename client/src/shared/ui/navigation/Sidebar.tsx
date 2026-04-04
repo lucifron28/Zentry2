@@ -8,42 +8,45 @@ type SidebarProps = {
 }
 
 export function Sidebar({ className, onNavigate }: SidebarProps) {
-  const sidebarClassName = ['w-72 border-r border-base-300 bg-base-100', className]
+  const sidebarClassName = [
+    'flex h-screen w-64 shrink-0 flex-col border-r border-base-300 bg-base-100 overflow-y-auto',
+    className,
+  ]
     .filter(Boolean)
     .join(' ')
 
   return (
     <aside className={sidebarClassName}>
-      <div className="flex h-full flex-col">
-        <div className="border-b border-base-300 px-5 py-5">
-          <p className="text-xs font-medium uppercase tracking-[0.14em] text-base-content/60">Zentry</p>
-          <h1 className="mt-1 text-xl font-semibold text-base-content">Team Project Management</h1>
-        </div>
+      {/* Brand header */}
+      <div className="border-b border-base-300 px-5 py-5">
+        <p className="text-xs font-medium uppercase tracking-[0.14em] text-base-content/60">Zentry</p>
+        <h1 className="mt-1 text-lg font-semibold text-base-content">Team Project Management</h1>
+      </div>
 
-        <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4" aria-label="Primary">
-          {APP_NAV_ITEMS.map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              onClick={onNavigate}
-              className={({ isActive }) => {
-                const baseClass = 'block rounded-xl border px-3 py-3 transition-colors'
-                const activeClass = 'border-primary/20 bg-primary/10 text-primary'
-                const idleClass =
-                  'border-transparent text-base-content/80 hover:border-base-300 hover:bg-base-200/70 hover:text-base-content'
+      {/* Navigation links */}
+      <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4" aria-label="Primary">
+        {APP_NAV_ITEMS.map((item) => (
+          <NavLink
+            key={item.to}
+            to={item.to}
+            onClick={onNavigate}
+            className={({ isActive }) => {
+              const base = 'block rounded-xl border px-3 py-3 transition-colors'
+              const active = 'border-primary/20 bg-primary/10 text-primary'
+              const idle =
+                'border-transparent text-base-content/80 hover:border-base-300 hover:bg-base-200/70 hover:text-base-content'
+              return `${base} ${isActive ? active : idle}`
+            }}
+          >
+            <p className="text-sm font-semibold">{item.label}</p>
+            <p className="mt-0.5 text-xs leading-relaxed text-base-content/55">{item.subtitle}</p>
+          </NavLink>
+        ))}
+      </nav>
 
-                return `${baseClass} ${isActive ? activeClass : idleClass}`
-              }}
-            >
-              <p className="text-sm font-semibold">{item.label}</p>
-              <p className="mt-1 text-xs leading-relaxed text-base-content/60">{item.subtitle}</p>
-            </NavLink>
-          ))}
-        </nav>
-
-        <div className="border-t border-base-300 px-5 py-4 text-xs text-base-content/45">
-          Zentry v0.1 · Team Workspace
-        </div>
+      {/* Footer */}
+      <div className="border-t border-base-300 px-5 py-4 text-xs text-base-content/40">
+        Zentry v0.1 · Team Workspace
       </div>
     </aside>
   )
