@@ -3,6 +3,8 @@ type InsightPanelProps = {
   body: string
   healthScore: number
   healthLabel: string
+  insightLabel?: string
+  scoreLabel?: string
 }
 
 export function InsightPanel({
@@ -10,13 +12,15 @@ export function InsightPanel({
   body,
   healthScore,
   healthLabel,
+  insightLabel = 'Architectural Insight',
+  scoreLabel = 'Health Score',
 }: InsightPanelProps) {
   return (
     <div className="space-y-4">
       <div className="card bg-base-200/60 border border-base-300">
         <div className="card-body p-5 space-y-3">
           <p className="text-xs font-medium uppercase tracking-[0.12em] text-base-content/55">
-            Architectural Insight
+            {insightLabel}
           </p>
           <p className="text-sm font-semibold text-base-content leading-snug">
             {headline}
@@ -28,7 +32,7 @@ export function InsightPanel({
       <div className="card bg-base-100 border border-base-200 shadow-sm">
         <div className="card-body p-5 space-y-3">
           <p className="text-xs font-medium uppercase tracking-[0.12em] text-base-content/55">
-            Health Score
+            {scoreLabel}
           </p>
           <div className="flex items-center justify-between">
             <progress

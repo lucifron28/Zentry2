@@ -10,14 +10,24 @@ export type Milestone = {
 
 type MilestonesCardProps = {
   milestones: Milestone[]
+  subtitle?: string
+  emptyMessage?: string
 }
 
-export function MilestonesCard({ milestones }: MilestonesCardProps) {
+export function MilestonesCard({ milestones, subtitle, emptyMessage }: MilestonesCardProps) {
+  const resolvedSubtitle =
+    subtitle ??
+    (milestones.length === 0
+      ? 'Tracked checkpoints for this project'
+      : `${milestones.length} checkpoint${milestones.length !== 1 ? 's' : ''} tracked`)
+
+  const resolvedEmptyMessage = emptyMessage ?? 'No milestones defined yet.'
+
   if (milestones.length === 0) {
     return (
-      <SectionCard title="Active Milestones" subtitle="Tracked checkpoints for this project">
+      <SectionCard title="Active Milestones" subtitle={resolvedSubtitle}>
         <p className="py-4 text-center text-sm text-base-content/55">
-          No milestones defined yet.
+          {resolvedEmptyMessage}
         </p>
       </SectionCard>
     )
@@ -26,7 +36,7 @@ export function MilestonesCard({ milestones }: MilestonesCardProps) {
   return (
     <SectionCard
       title="Active Milestones"
-      subtitle={`${milestones.length} checkpoint${milestones.length !== 1 ? 's' : ''} tracked`}
+      subtitle={resolvedSubtitle}
     >
       <ul className="space-y-3">
         {milestones.map((milestone) => (
@@ -47,7 +57,7 @@ export function MilestonesCard({ milestones }: MilestonesCardProps) {
                 {milestone.dueLabel}
               </p>
             </div>
-            <div className="flex-shrink-0 text-right">
+            <div className="shrink-0 text-right">
               <p className="text-xs text-base-content/50 leading-snug">{milestone.assignee}</p>
             </div>
           </li>

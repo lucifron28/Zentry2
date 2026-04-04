@@ -4,15 +4,21 @@ import type { ActivityItem } from '@/shared/ui/data/ActivityList'
 
 type ProjectActivityCardProps = {
   items: ActivityItem[]
+  subtitle?: string
+  emptyMessage?: string
 }
 
-export function ProjectActivityCard({ items }: ProjectActivityCardProps) {
+export function ProjectActivityCard({
+  items,
+  subtitle = 'Latest actions on this project',
+  emptyMessage = 'No activity recorded yet.',
+}: ProjectActivityCardProps) {
   return (
     <SectionCard
       title="Recent Activity"
-      subtitle="Latest actions on this project"
+      subtitle={subtitle}
     >
-      <ActivityList items={items} emptyMessage="No activity recorded yet." />
+      <ActivityList items={items} emptyMessage={emptyMessage} />
     </SectionCard>
   )
 }

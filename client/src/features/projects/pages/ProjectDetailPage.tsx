@@ -12,22 +12,9 @@ import { useAddProjectMember } from '@/features/projects/hooks/useAddProjectMemb
 import { useProject } from '@/features/projects/hooks/useProject'
 import { useRemoveProjectMember } from '@/features/projects/hooks/useRemoveProjectMember'
 import { useAuthSession } from '@/features/auth/hooks/useAuthSession'
-import type { Milestone } from '@/features/projects/components/MilestonesCard'
-import type { ActivityItem } from '@/shared/ui/data/ActivityList'
 import type { ApiUser } from '@/features/projects/types/project'
 import { ErrorState } from '@/shared/ui/states/ErrorState'
 import { LoadingState } from '@/shared/ui/states/LoadingState'
-
-const DEFAULT_MILESTONES: Milestone[] = [
-  { id: 'm1', title: 'Initial Scoping & Requirements', dueLabel: 'Completed', assignee: 'Project Lead' },
-  { id: 'm2', title: 'Design Review & Approval', dueLabel: 'In progress', assignee: 'Design Team' },
-]
-
-const DEFAULT_ACTIVITY: ActivityItem[] = [
-  { id: 'a1', actor: 'System', actorInitials: 'SY', action: 'created this project', timestamp: '3 weeks ago' },
-  { id: 'a2', actor: 'Project Lead', actorInitials: 'PL', action: 'assigned initial team members', timestamp: '3 weeks ago' },
-  { id: 'a3', actor: 'System', actorInitials: 'SY', action: 'project status set to active', timestamp: '2 weeks ago' },
-]
 
 type MemberApiErrorShape = {
   detail?: unknown
@@ -43,6 +30,17 @@ type ApiErrorEnvelope = {
 
 function normalizeId(value: string | number | null | undefined) {
   return value == null ? '' : String(value)
+}
+
+function toDisplayLabel(value: string | null | undefined) {
+  if (!value) {
+    return 'Not set'
+  }
+
+  return value
+    .replace(/_/g, ' ')
+    .replace(/-/g, ' ')
+    .replace(/\b\w/g, (char) => char.toUpperCase())
 }
 
 function firstErrorMessage(value: unknown): string | undefined {
@@ -112,15 +110,19 @@ export function ProjectDetailPage() {
       (currentUser.role === 'admin' || normalizeId(currentUser.id) === normalizeId(project.owner?.id)),
   )
 
-  const milestones = DEFAULT_MILESTONES
-  const activity = DEFAULT_ACTIVITY
+  const milestones = []
+  const activity = []
 
   const membersWithRoles = (project.members || []).map((m: ApiUser) => ({
     ...m,
     projectRole: m.role || 'Member',
   }))
 
-  const dueDateStr = project.due_date ? new Date(project.due_date).toLocaleDateString() : 'no date'
+  const memberCount = membersWithRoles.length
+  const statusLabel = toDisplayLabel(project.status)
+  const priorityLabel = toDisplayLabel(project.priority)
+  const categoryLabel = project.category?.trim() || 'Not set'
+  const dueDateLabel = project.due_date ? new Date(project.due_date).toLocaleDateString() : 'Not set'
 
   const handleOpenAddMemberModal = () => {
     setMemberActionError(null)
@@ -173,14 +175,10 @@ export function ProjectDetailPage() {
   }
 
   const insight = {
-    headline: `${project.name} — ${project.progress}% complete`,
-    body: project.progress >= 50
-      ? `At ${project.progress}% completion, this project is making solid progress. Current velocity suggests the team is on track for the ${dueDateStr} deadline.`
-      : `This project is in early stages at ${project.progress}% complete. Ensure milestone dependencies are resolved to maintain delivery pace toward ${dueDateStr}.`,
-    healthScore: Math.min(100, project.progress + 15),
-    healthLabel: project.status === 'overdue'
-      ? 'This project is past its original deadline. Prioritize blockers.'
-      : 'Team efficiency is within acceptable range for this project phase.',
+    headline: `${statusLabel} status | ${priorityLabel} priority`,
+    body: `Category: ${categoryLabel}. Due date: ${dueDateLabel}. Progress: ${project.progress}%. Tasks: ${project.task_count}. Members: ${memberCount}.`,
+    healthScore: Math.max(0, Math.min(100, project.progress)),
+    healthLabel: `Current completion is based on the stored project progress value.`,
   }
 
   return (
@@ -190,8 +188,16 @@ export function ProjectDetailPage() {
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-5">
         {/* Left — main content */}
         <div className="space-y-5 lg:col-span-3">
-          <MilestonesCard milestones={milestones} />
-          <ProjectActivityCard items={activity} />
+          <MilestonesCard
+            milestones={milestones}
+            subtitle="Milestone tracking is in progress"
+            emptyMessage="No milestones to display yet. Backend milestone support is still in progress."
+          />
+          <ProjectActivityCard
+            items={activity}
+            subtitle="Project activity feed is not yet available"
+            emptyMessage="No activity to display yet. Backend activity support is not yet available."
+          />
         </div>
 
         {/* Right — sidebar */}
@@ -212,6 +218,8 @@ export function ProjectDetailPage() {
             body={insight.body}
             healthScore={insight.healthScore}
             healthLabel={insight.healthLabel}
+            insightLabel="Project Snapshot"
+            scoreLabel="Progress"
           />
         </div>
       </div>
