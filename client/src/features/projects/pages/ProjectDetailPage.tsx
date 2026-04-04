@@ -11,6 +11,7 @@ import { APP_ROUTES } from '@/shared/constants/routes'
 import { useAddProjectMember } from '@/features/projects/hooks/useAddProjectMember'
 import { useProject } from '@/features/projects/hooks/useProject'
 import { useRemoveProjectMember } from '@/features/projects/hooks/useRemoveProjectMember'
+import { ProjectTasksCard } from '@/features/tasks/components/ProjectTasksCard'
 import { useAuthSession } from '@/features/auth/hooks/useAuthSession'
 import type { ApiUser } from '@/features/projects/types/project'
 import { ErrorState } from '@/shared/ui/states/ErrorState'
@@ -110,6 +111,11 @@ export function ProjectDetailPage() {
       (currentUser.role === 'admin' || normalizeId(currentUser.id) === normalizeId(project.owner?.id)),
   )
 
+  const canManageTasks = Boolean(
+    currentUser && 
+      (currentUser.role === 'admin' || currentUser.role === 'project_manager'),
+  )
+
   const milestones: any[] = []
   const activity: any[] = []
 
@@ -188,6 +194,11 @@ export function ProjectDetailPage() {
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-5">
         {/* Left — main content */}
         <div className="space-y-5 lg:col-span-3">
+          <ProjectTasksCard
+            projectId={project.id}
+            projectMembers={membersWithRoles}
+            canManageTasks={canManageTasks}
+          />
           <MilestonesCard
             milestones={milestones}
             subtitle="Milestone tracking is in progress"
