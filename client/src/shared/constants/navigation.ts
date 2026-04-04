@@ -33,11 +33,6 @@ export const APP_NAV_ITEMS: AppNavItem[] = [
     subtitle: 'Managed project and task files.',
   },
   {
-    label: 'Notifications',
-    to: APP_ROUTES.notifications,
-    subtitle: 'System alerts and user updates.',
-  },
-  {
     label: 'Activity Logs',
     to: APP_ROUTES.activityLogs,
     subtitle: 'Traceable system and user actions.',
