@@ -15,7 +15,6 @@ export function useLogin(options?: UseLoginOptions) {
     onSuccess: (payload) => {
       setSession({
         accessToken: payload.access,
-        refreshToken: payload.refresh,
         currentUser: payload.user,
       })
       options?.onSuccess?.()
