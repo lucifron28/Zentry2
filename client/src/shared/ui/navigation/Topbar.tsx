@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { useThemeStore, THEME_OPTIONS } from '@/shared/hooks/useThemeStore'
 import { APP_ROUTES } from '@/shared/constants/routes'
+import { useNotifications } from '@/features/notifications/hooks/useNotifications'
 
 type TopbarProps = {
   title: string
@@ -12,6 +13,7 @@ type TopbarProps = {
 
 export function Topbar({ title, subtitle, userIdentity, onToggleSidebar, onLogout }: TopbarProps) {
   const { theme, setTheme } = useThemeStore()
+  const { data: notifications } = useNotifications(false)
 
   return (
     <header className="sticky top-0 z-20 border-b border-base-300 bg-base-100/90 backdrop-blur">
@@ -58,6 +60,11 @@ export function Topbar({ title, subtitle, userIdentity, onToggleSidebar, onLogou
                 d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
               />
             </svg>
+            {(notifications?.count || 0) > 0 && (
+              <span className="badge badge-sm badge-primary indicator-item absolute top-0 right-0 scale-75 shadow-sm ring-2 ring-base-100">
+                {notifications!.count}
+              </span>
+            )}
           </Link>
 
           {/* Theme switcher */}
