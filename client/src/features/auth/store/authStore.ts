@@ -4,12 +4,10 @@ import type { AuthUser } from '@/shared/types/auth'
 type SessionPayload = {
   accessToken: string
   currentUser: AuthUser
-  refreshToken?: string
 }
 
 type AuthState = {
   accessToken: string | null
-  refreshToken: string | null
   currentUser: AuthUser | null
   setSession: (session: SessionPayload) => void
   setCurrentUser: (currentUser: AuthUser | null) => void
@@ -19,15 +17,14 @@ type AuthState = {
 
 export const useAuthStore = create<AuthState>((set) => ({
   accessToken: null,
-  refreshToken: null,
   currentUser: null,
-  setSession: ({ accessToken, currentUser, refreshToken }) =>
+  setSession: ({ accessToken, currentUser }) =>
     set({
       accessToken,
-      refreshToken: refreshToken ?? null,
       currentUser,
     }),
   setCurrentUser: (currentUser) => set({ currentUser }),
   setAccessToken: (accessToken) => set({ accessToken }),
-  clearSession: () => set({ accessToken: null, refreshToken: null, currentUser: null }),
+  clearSession: () => set({ accessToken: null, currentUser: null }),
 }))
+
