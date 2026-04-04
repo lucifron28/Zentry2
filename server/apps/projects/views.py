@@ -2,6 +2,7 @@ from rest_framework import viewsets, filters, status
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
+from django.db.models import Q
 
 from apps.core.audit import log_audit_event
 from apps.users.models import User
@@ -23,6 +24,10 @@ class ProjectViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = Project.objects.select_related("owner").prefetch_related("members").all()
+
+        user = self.request.user
+        if getattr(user, "role", None) != User.Role.ADMIN:
+            queryset = queryset.filter(Q(owner_id=user.id) | Q(members__id=user.id)).distinct()
         
         status_param = self.request.query_params.get("status")
         if status_param:

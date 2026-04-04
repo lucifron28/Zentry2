@@ -137,3 +137,137 @@ class ProjectMembershipApiTests(APITestCase):
         )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+
+class ProjectAccessPolicyTests(APITestCase):
+    def setUp(self):
+        self.admin = User.objects.create_user(
+            username="admin2",
+            email="admin2@example.com",
+            password="TestPass123!",
+            role=User.Role.ADMIN,
+        )
+        self.pm_owner = User.objects.create_user(
+            username="pmowner",
+            email="pmowner@example.com",
+            password="TestPass123!",
+            role=User.Role.PROJECT_MANAGER,
+        )
+        self.pm_member = User.objects.create_user(
+            username="pmmember",
+            email="pmmember@example.com",
+            password="TestPass123!",
+            role=User.Role.PROJECT_MANAGER,
+        )
+        self.team_member = User.objects.create_user(
+            username="teammember",
+            email="teammember@example.com",
+            password="TestPass123!",
+            role=User.Role.TEAM_MEMBER,
+        )
+        self.outsider = User.objects.create_user(
+            username="outsider2",
+            email="outsider2@example.com",
+            password="TestPass123!",
+            role=User.Role.TEAM_MEMBER,
+        )
+
+        self.owned_project = Project.objects.create(
+            name="Owned Project",
+            owner=self.pm_owner,
+            status=Project.Status.ACTIVE,
+            priority=Project.Priority.HIGH,
+        )
+        self.owned_project.members.add(self.pm_owner, self.team_member)
+
+        self.member_project = Project.objects.create(
+            name="Member Project",
+            owner=self.admin,
+            status=Project.Status.ACTIVE,
+            priority=Project.Priority.MEDIUM,
+        )
+        self.member_project.members.add(self.pm_member)
+
+        self.hidden_project = Project.objects.create(
+            name="Hidden Project",
+            owner=self.admin,
+            status=Project.Status.PLANNING,
+            priority=Project.Priority.LOW,
+        )
+
+        self.list_url = "/api/v1/projects/"
+        self.owned_detail_url = f"/api/v1/projects/{self.owned_project.id}/"
+        self.member_detail_url = f"/api/v1/projects/{self.member_project.id}/"
+        self.hidden_detail_url = f"/api/v1/projects/{self.hidden_project.id}/"
+
+    def _auth_as(self, user):
+        self.client.force_authenticate(user=user)
+
+    def test_unauthenticated_user_cannot_list_projects(self):
+        response = self.client.get(self.list_url)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_team_member_list_is_scoped_to_member_projects(self):
+        self._auth_as(self.team_member)
+
+        response = self.client.get(self.list_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        project_ids = {project["id"] for project in response.data["results"]}
+        self.assertIn(self.owned_project.id, project_ids)
+        self.assertNotIn(self.member_project.id, project_ids)
+        self.assertNotIn(self.hidden_project.id, project_ids)
+
+    def test_team_member_cannot_create_project(self):
+        self._auth_as(self.team_member)
+
+        response = self.client.post(
+            self.list_url,
+            {
+                "name": "Team Member Created Project",
+                "description": "Should be blocked",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_project_manager_member_cannot_update_non_owned_project(self):
+        self._auth_as(self.pm_member)
+
+        response = self.client.patch(
+            self.member_detail_url,
+            {"name": "Unauthorized Rename"},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_project_manager_owner_can_update_owned_project(self):
+        self._auth_as(self.pm_owner)
+
+        response = self.client.patch(
+            self.owned_detail_url,
+            {"name": "Owner Updated Name"},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_outsider_cannot_retrieve_unrelated_project(self):
+        self._auth_as(self.outsider)
+
+        response = self.client.get(self.hidden_detail_url)
+
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_admin_can_list_all_projects(self):
+        self._auth_as(self.admin)
+
+        response = self.client.get(self.list_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        project_ids = {project["id"] for project in response.data["results"]}
+        self.assertIn(self.owned_project.id, project_ids)
+        self.assertIn(self.member_project.id, project_ids)
+        self.assertIn(self.hidden_project.id, project_ids)
