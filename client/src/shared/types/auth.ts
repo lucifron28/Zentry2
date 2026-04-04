@@ -12,11 +12,10 @@ export type AuthUser = {
 
 export type AuthLoginResponse = {
   access: string
-  refresh: string
   user: AuthUser
 }
 
 export type AuthRefreshResponse = {
   access: string
-  refresh?: string
 }
+
