@@ -3,6 +3,7 @@ import { PageHeader } from '@/shared/ui/data/PageHeader'
 import { FilterToolbar } from '@/features/projects/components/FilterToolbar'
 import { ProjectsTable } from '@/features/projects/components/ProjectsTable'
 import { InsightPanel } from '@/features/projects/components/InsightPanel'
+import { CreateProjectModal } from '@/features/projects/components/CreateProjectModal'
 import { useProjects } from '@/features/projects/hooks/useProjects'
 import type { ProjectStatus } from '@/shared/ui/data/StatusBadge'
 
@@ -18,6 +19,8 @@ export function ProjectsPage() {
   const [statusFilter, setStatusFilter] = useState<ProjectStatus | 'all'>('all')
   const [sortBy, setSortBy] = useState<'name' | 'progress' | 'dueDate' | 'status'>('name')
   const [page, setPage] = useState(1)
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
+  const [createFeedback, setCreateFeedback] = useState<string | null>(null)
 
   // Map sort keys to Django ordering strings
   const orderingMap: Record<string, string> = {
@@ -53,11 +56,28 @@ export function ProjectsPage() {
         title="Projects"
         description="Organize project records, milestones, and assigned team members in one place."
         action={
-          <button className="btn btn-primary btn-sm" disabled aria-label="New project (coming soon)">
+          <button
+            className="btn btn-primary btn-sm"
+            onClick={() => setIsCreateModalOpen(true)}
+            aria-label="Create new project"
+          >
             + New Project
           </button>
         }
       />
+
+      {createFeedback ? (
+        <div className="alert alert-success items-start sm:items-center">
+          <span>{createFeedback}</span>
+          <button
+            type="button"
+            className="btn btn-ghost btn-xs sm:ml-auto"
+            onClick={() => setCreateFeedback(null)}
+          >
+            Dismiss
+          </button>
+        </div>
+      ) : null}
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-4">
         <div className="space-y-4 lg:col-span-3">
@@ -116,6 +136,15 @@ export function ProjectsPage() {
           />
         </div>
       </div>
+
+      <CreateProjectModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        onCreated={(projectName) => {
+          setCreateFeedback(`Project "${projectName}" was created successfully.`)
+          setPage(1)
+        }}
+      />
     </section>
   )
 }
