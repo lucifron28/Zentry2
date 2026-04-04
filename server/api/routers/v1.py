@@ -1,4 +1,5 @@
 from django.urls import include, path
+from apps.dashboard.views import DashboardStatsView
 
 urlpatterns = [
     path("auth/", include("apps.authentication.urls")),
@@ -9,4 +10,5 @@ urlpatterns = [
     path("attachments/", include("apps.attachments.urls")),
     path("notifications/", include("apps.notifications.urls")),
     path("audit-logs/", include("apps.audit_logs.urls")),
+    path("dashboard/stats/", DashboardStatsView.as_view(), name="dashboard_stats"),
 ]
