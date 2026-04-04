@@ -1,13 +1,11 @@
-from rest_framework.response import Response
-from rest_framework.views import APIView
+from rest_framework import viewsets, mixins
+from rest_framework.permissions import IsAdminUser
 
-from .permissions import AuditLogsAccessPermission
-from .serializers import AuditLogsPlaceholderSerializer
+from .models import AuditLog
+from .serializers import AuditLogSerializer
 
 
-class AuditLogsHealthView(APIView):
-    permission_classes = [AuditLogsAccessPermission]
-
-    def get(self, request):
-        serializer = AuditLogsPlaceholderSerializer()
-        return Response(serializer.data)
+class AuditLogViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
+    permission_classes = [IsAdminUser]
+    serializer_class = AuditLogSerializer
+    queryset = AuditLog.objects.select_related("actor").all()
