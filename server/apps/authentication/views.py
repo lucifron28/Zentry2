@@ -9,12 +9,12 @@ from apps.users.serializers import CurrentUserSerializer
 from .serializers import LoginSerializer, ZentryTokenRefreshSerializer
 
 
-AUTH_COOKIE = getattr(settings, 'AUTH_COOKIE', 'refresh_token')
-AUTH_COOKIE_MAX_AGE = 60 * 60 * 24 * 7 # 7 days
-AUTH_COOKIE_SECURE = getattr(settings, 'AUTH_COOKIE_SECURE', not settings.DEBUG)
-AUTH_COOKIE_HTTP_ONLY = True
-AUTH_COOKIE_PATH = '/'
-AUTH_COOKIE_SAMESITE = getattr(settings, 'AUTH_COOKIE_SAMESITE', 'Lax')
+AUTH_COOKIE = settings.AUTH_COOKIE_REFRESH_NAME
+AUTH_COOKIE_MAX_AGE = settings.AUTH_COOKIE_REFRESH_MAX_AGE
+AUTH_COOKIE_SECURE = settings.AUTH_COOKIE_SECURE
+AUTH_COOKIE_HTTP_ONLY = settings.AUTH_COOKIE_HTTP_ONLY
+AUTH_COOKIE_PATH = settings.AUTH_COOKIE_REFRESH_PATH
+AUTH_COOKIE_SAMESITE = settings.AUTH_COOKIE_SAMESITE
 
 def set_auth_cookie(response, refresh_token):
     response.set_cookie(

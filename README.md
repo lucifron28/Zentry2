@@ -83,18 +83,23 @@ Implemented auth and scaffold highlights:
 - Backend authentication endpoints are live under `/api/v1/auth/`:
 	- `POST /auth/login/`
 	- `POST /auth/refresh/`
+	- `POST /auth/logout/`
 	- `GET /auth/me/`
-- Frontend login response typing and auth store now consume backend auth payload (`access`, `refresh`, `user`).
+- Frontend auth session state keeps the access token in memory-oriented state only.
+- Refresh token is handled by the backend in an HttpOnly cookie and is not stored in frontend app state.
+- Browser reload session restoration runs through refresh bootstrap (`/auth/refresh/`) before current-user hydration.
 - Frontend current-user hydration is active via `/auth/me/` during app bootstrap when needed.
 - Unauthorized current-user hydration clears invalid session state to avoid half-authenticated UI.
-- Redirect restoration and logout flow remain active.
+- Logout clears frontend session state and clears the refresh cookie server-side.
 
 In-progress areas:
-- Secure refresh-cookie strategy and full silent refresh orchestration.
-- Logout/revocation hardening beyond current session clearing behavior.
+- Refresh token revocation hardening beyond cookie clearing (for example blacklist-based invalidation).
 - Module-specific CRUD APIs and object-level authorization behavior.
 - Finalized audit logging integration across all protected actions.
 - Production deployment and hardening controls.
+
+Auth security note:
+- Moving refresh token storage to an HttpOnly cookie reduces direct JavaScript access to that token, but it does not eliminate XSS risk.
 
 ## Setup (Local Development)
 These instructions are for local development. Production deployment guidance is intentionally out of scope at this stage.

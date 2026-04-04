@@ -65,9 +65,10 @@ Current scaffold status:
 - Output/Result:
   - User is redirected to intended protected route or dashboard fallback.
 - Security Note:
-  - Frontend redirect and session handling are implemented for active in-memory sessions.
-  - Backend auth foundation exists, but secure refresh-cookie strategy and full silent refresh orchestration are still in progress.
-  - Do not claim full persistent session restoration across browser reloads at this stage.
+  - Frontend redirect and session handling are implemented with memory-oriented access token state.
+  - Refresh token handling is implemented through an HttpOnly cookie, so the frontend does not manage a refresh token in app state.
+  - Browser reload restoration is implemented through refresh bootstrap (`/auth/refresh/`) before current-user hydration.
+  - This reduces direct JavaScript access to the refresh token but does not eliminate XSS risk.
 - Evidence File Name:
 
 ### 1.2.2 Application Shell and Navigation Layout
@@ -121,7 +122,7 @@ Current scaffold status:
 - Security Note:
   - Backend authorization checks remain mandatory and should be documented separately for each business module.
   - If current-user hydration returns unauthorized, session is cleared to avoid half-authenticated UI state.
-  - This stage remains memory-oriented; full reload persistence is not yet claimed.
+  - Access token state remains memory-oriented; reload restoration depends on a valid HttpOnly refresh cookie.
 - Evidence File Name:
 
 ### 1.2.4 Dashboard (Scaffold Placeholder)

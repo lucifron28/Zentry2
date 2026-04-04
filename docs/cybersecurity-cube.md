@@ -11,12 +11,14 @@ This section is a structured draft for Zentry cybersecurity documentation. Use t
 Zentry-specific guidance:
 - Implemented:
   - Backend custom user model includes explicit role values for Admin, Project Manager, and Team Member.
-  - Backend auth endpoints exist for login, refresh, and current-user retrieval.
+  - Backend auth endpoints exist for login, refresh, logout, and current-user retrieval.
+  - Refresh token is handled through an HttpOnly cookie, reducing direct JavaScript access.
+  - Logout clears the refresh cookie server-side.
   - Frontend route guards separate public and protected layouts.
   - Frontend auth session state controls access to protected shell routes.
   - Client request interceptor attaches Bearer access token when available.
 - In Progress:
-  - Logout/revocation hardening beyond baseline session clearing.
+  - Refresh-token revocation hardening beyond cookie clearing (for example blacklist-based invalidation).
   - Module-level and object-level backend authorization wiring is ongoing.
 - Planned:
   - Finalized authorization matrices per module and role.
@@ -61,13 +63,18 @@ Zentry-specific guidance:
   - Access token attachment via frontend Axios interceptor is configured.
   - API base URL is environment-driven on the frontend.
   - Authenticated login and refresh endpoint exchange is implemented in backend and consumed by frontend.
+  - Access token is stored in memory-oriented frontend session state only.
+  - Refresh token is stored in an HttpOnly cookie and is not managed in frontend app state.
+  - Browser reload restoration is implemented through refresh bootstrap via `/auth/refresh/`.
+  - 401 retry flow uses `/auth/refresh/` before replaying the original protected request.
   - Current-user hydration via `/auth/me/` is implemented for active in-memory sessions.
   - Unauthorized current-user hydration clears invalid session state.
 - In Progress:
-  - Full silent refresh orchestration and retry strategy in frontend lifecycle.
+  - Blacklist/revocation hardening after refresh rotation is not fully enabled yet.
 - Planned:
-  - Secure refresh-token cookie strategy and finalized token refresh flow.
   - Deployment-grade transport policies and enforcement checks.
+- Security honesty note:
+  - HttpOnly refresh-cookie handling reduces JavaScript access to refresh tokens but does not eliminate XSS risk.
 - Evidence to capture:
   - API request example showing authenticated route usage
   - Route-level permission response examples
@@ -106,10 +113,11 @@ Zentry-specific guidance:
 Zentry-specific guidance:
 - Implemented:
   - Django, DRF, SimpleJWT, and centralized frontend Axios client integration are in place.
-  - Backend auth endpoints (`/auth/login/`, `/auth/refresh/`, `/auth/me/`) are implemented.
-  - Frontend route guarding, request token attachment, and current-user hydration are implemented for active sessions.
+  - Backend auth endpoints (`/auth/login/`, `/auth/refresh/`, `/auth/logout/`, `/auth/me/`) are implemented.
+  - Frontend route guarding, request token attachment, refresh bootstrap/retry, and current-user hydration are implemented for active sessions.
 - In Progress:
   - Endpoint-level permission and validation wiring by module.
+  - Token revocation/blacklist hardening beyond current rotation baseline.
   - Audit logging integration across feature actions.
 - Planned:
   - Production-grade hardening controls and security verification automation.

@@ -164,6 +164,27 @@ SIMPLE_JWT = {
 }
 
 
+# Refresh-token cookie settings
+AUTH_COOKIE_REFRESH_NAME = os.getenv('AUTH_COOKIE_REFRESH_NAME', 'refresh_token')
+AUTH_COOKIE_REFRESH_PATH = os.getenv('AUTH_COOKIE_REFRESH_PATH', '/api/v1/auth/')
+AUTH_COOKIE_SECURE = os.getenv(
+    'AUTH_COOKIE_SECURE',
+    'false' if DEBUG else 'true',
+).lower() in {'1', 'true', 'yes'}
+AUTH_COOKIE_HTTP_ONLY = os.getenv('AUTH_COOKIE_HTTP_ONLY', 'true').lower() in {
+    '1',
+    'true',
+    'yes',
+}
+AUTH_COOKIE_SAMESITE = os.getenv('AUTH_COOKIE_SAMESITE', 'Lax')
+AUTH_COOKIE_REFRESH_MAX_AGE = int(
+    os.getenv(
+        'AUTH_COOKIE_REFRESH_MAX_AGE',
+        str(int(SIMPLE_JWT['REFRESH_TOKEN_LIFETIME'].total_seconds())),
+    )
+)
+
+
 # CORS — allow the Vite dev server and any localhost origin during development
 CORS_ALLOWED_ORIGINS = [
     origin.strip()
