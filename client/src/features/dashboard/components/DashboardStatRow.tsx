@@ -2,7 +2,7 @@ import { StatCard } from '@/shared/ui/data/StatCard'
 import { useDashboardStats } from '@/features/dashboard/hooks/useDashboardStats'
 
 export function DashboardStatRow() {
-  const { data, isLoading } = useDashboardStats()
+  const { data, isLoading, isError } = useDashboardStats()
 
   if (isLoading) {
     return (
@@ -20,10 +20,26 @@ export function DashboardStatRow() {
   }
 
   const stats = [
-    { label: 'Active Projects', value: data?.total_projects ?? 0, trend: '+2', trendUp: true, description: 'vs last month' },
-    { label: 'Pending Tasks', value: data?.active_tasks ?? 0, trend: '-18%', trendUp: true, description: 'completion rate up' },
-    { label: 'In Review', value: data?.pending_reviews ?? 0, trend: '4', trendUp: false, description: 'requires action' },
-    { label: 'Upcoming Deadlines', value: data?.upcoming_deadlines_count ?? 0, trend: '0', trendUp: true, description: 'this week' },
+    {
+      label: 'Total Projects',
+      value: isError ? '-' : (data?.total_projects ?? 0),
+      description: 'Projects where you are a member',
+    },
+    {
+      label: 'Active Tasks',
+      value: isError ? '-' : (data?.active_tasks ?? 0),
+      description: 'Tasks currently in progress',
+    },
+    {
+      label: 'Pending Reviews',
+      value: isError ? '-' : (data?.pending_reviews ?? 0),
+      description: 'Tasks waiting for review',
+    },
+    {
+      label: 'Tasks With Due Dates',
+      value: isError ? '-' : (data?.upcoming_deadlines_count ?? 0),
+      description: 'Tasks that currently have a due date',
+    },
   ]
 
   return (
@@ -33,8 +49,6 @@ export function DashboardStatRow() {
           key={stat.label}
           label={stat.label}
           value={stat.value}
-          trend={stat.trend}
-          trendUp={stat.trendUp}
           description={stat.description}
         />
       ))}
