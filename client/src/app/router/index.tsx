@@ -7,6 +7,7 @@ import { LoginPage } from '@/features/auth/pages/LoginPage'
 import { DashboardPage } from '@/features/dashboard/pages/DashboardPage'
 import { ProjectsPage } from '@/features/projects/pages/ProjectsPage'
 import { ProjectDetailPage } from '@/features/projects/pages/ProjectDetailPage'
+import { TasksPage } from '@/features/tasks/pages/TasksPage'
 import { APP_ROUTES } from '@/shared/constants/routes'
 
 function RootRedirect() {
@@ -63,12 +64,7 @@ const router = createBrowserRouter([
       },
       {
         path: APP_ROUTES.tasks,
-        element: (
-          <ModuleScaffoldPage
-            title="Tasks"
-            description="Manage task lifecycle details such as assignment, status, and delivery deadlines."
-          />
-        ),
+        element: <TasksPage />,
         handle: {
           title: 'Tasks',
           subtitle: 'Task planning and status control.',
