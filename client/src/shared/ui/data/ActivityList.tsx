@@ -25,7 +25,7 @@ export function ActivityList({
     <ul className="space-y-4">
       {items.map((item) => (
         <li key={item.id} className="flex items-start gap-3">
-          <div className="avatar placeholder flex-shrink-0">
+          <div className="avatar placeholder shrink-0">
             <div className="w-8 h-8 rounded-full bg-base-300 text-xs font-semibold text-base-content/80 flex items-center justify-center">
               <span>{item.actorInitials}</span>
             </div>

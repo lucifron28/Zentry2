@@ -22,7 +22,7 @@ export function FocusTasksCard() {
             <div className="flex items-center gap-3 min-w-0">
               <div
                 className={[
-                  'h-4 w-4 flex-shrink-0 rounded border-2',
+                  'h-4 w-4 shrink-0 rounded border-2',
                   task.done
                     ? 'border-success bg-success/20'
                     : 'border-base-300 bg-base-100',
@@ -40,7 +40,7 @@ export function FocusTasksCard() {
                 {task.title}
               </span>
             </div>
-            <div className="flex flex-shrink-0 items-center gap-2 ml-3">
+            <div className="flex shrink-0 items-center gap-2 ml-3">
               <PriorityBadge priority={task.priority} size="xs" />
               <span className="hidden text-xs text-base-content/50 sm:inline">
                 {task.dueLabel}
