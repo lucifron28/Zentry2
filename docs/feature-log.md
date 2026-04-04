@@ -155,3 +155,18 @@ Optional details for stronger exam documentation:
 - Role(s) tested: Authenticated session context
 - Validation or permission behavior observed: Components cleanly render empty states when arrays are authentically empty in backend responses.
 - Follow-up actions: Start building the API backing for Milestones and Activity Logs.
+
+## Entry 10
+### Feature: Project-Scoped Tasks Module Implementation
+**Date:** 2026-04-04
+**Purpose:** Implement functional task management within the Project scope, honoring existing backend business rules and strict role-based mutations.
+**Pages affected:** Project Detail Page, Dashboard Page
+**API endpoints:** `GET /api/v1/tasks/`, `POST /api/v1/tasks/`, `PATCH /api/v1/tasks/{id}/`
+**Security note:** strict role-based access is enforced server-side. Creation and editing and assignment are inherently limited to `Admin` and `Project Manager` roles. `Team Member` access acts as read-only according to the backend constraints. Dashboard naturally honors assignment isolation.
+**Evidence saved:** `project-tasks-slice-implementation.png`
+
+Optional details for stronger exam documentation:
+- User flow summary: Users browse a project's tasks inline, create new tasks using the validated form modal, and update assignments, due dates, statuses accurately. Changes instantly reflect on the personalized dashboard focus card.
+- Role(s) tested: Project Manager (mutations), Team Member (read-only)
+- Validation or permission behavior observed: Server-side rejections properly map back to the Zod-backed user form fields, preventing unauthorized modifications from Team Members.
+- Follow-up actions: Finalize remaining activity feeds.
