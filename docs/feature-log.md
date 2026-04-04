@@ -170,3 +170,18 @@ Optional details for stronger exam documentation:
 - Role(s) tested: Project Manager (mutations), Team Member (read-only)
 - Validation or permission behavior observed: Server-side rejections properly map back to the Zod-backed user form fields, preventing unauthorized modifications from Team Members.
 - Follow-up actions: Finalize remaining activity feeds.
+
+## Entry 11
+### Feature: Global Tasks Route and Full Tasks Slice Wiring
+**Date:** 2026-04-04
+**Purpose:** Replace the scaffold placeholder at the `/tasks` route with the real TasksPage and confirm the complete frontend Tasks slice is wired end-to-end (global view, project-scoped view, create/edit flow).
+**Pages affected:** Tasks Page (`/tasks`), Project Detail Page
+**API endpoints:** `GET /api/v1/tasks/`, `POST /api/v1/tasks/`, `PATCH /api/v1/tasks/{id}/`
+**Security note:** Task mutation endpoints enforce role-based access server-side. `Admin` and `Project Manager` roles may create and update tasks; `Team Member` access is strictly read-only by backend constraint. The global Tasks page is intentionally read-only on the frontend as well — task creation and editing are scoped to the Project Detail context to maintain correct project assignment boundaries.
+**Evidence saved:** `tasks-route-wired-global-page.png`
+
+Optional details for stronger exam documentation:
+- User flow summary: Authenticated users navigate to `/tasks` and see a filterable table of all tasks in their accessible projects. Clicking a row opens a read-only detail modal. Project Managers and Admins navigate to a project detail page and can create or edit tasks via validated modals there.
+- Role(s) tested: Admin and Project Manager (mutations via Project Detail), Team Member (read-only in both views)
+- Validation or permission behavior observed: New Task and Edit controls are absent for Team Members; backend returns HTTP 403 if a Team Member attempts a mutation directly.
+- Follow-up actions: Document screenshot evidence for Tasks section; add milestone and activity log backend support when ready.

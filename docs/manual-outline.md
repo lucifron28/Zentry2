@@ -169,23 +169,47 @@ Current status:
 
 ### 1.2.6 Tasks Module
 Current status:
-- The Tasks module is now implemented and integrated natively into the Project Detail page.
-- Project-scoped task lists display assignments, statuses, priorities, and due dates dynamically via backend endpoints.
-- Task creation, assignment, and status/detail updates are fully functional.
+- The global `/tasks` route now renders a real Tasks page backed by the live backend endpoint.
+- The Tasks page supports status and priority filtering and displays tasks across all accessible projects.
+- Clicking a task row opens a read-only Task Detail modal with the full task record.
+- Project-scoped task management (create, edit, status updates) is embedded directly inside Project Detail for authorized roles.
+- Task creation, editing, and assignments are restricted to `Admin` and `Project Manager` roles by backend enforcement.
+- `Team Members` see a read-only task view in both the global Tasks page and the Project Detail task section.
 
+#### 1.2.6a Global Tasks Page (`/tasks`)
 - Screenshot Title:
 - Figure Number:
 - Numbered UI Labels:
--   1. Project Tasks Table and active assigned elements
--   2. "New Task" and "Edit" action buttons
--   3. Task Detailed viewing panel (modal)
+  1. Status filter dropdown
+  2. Priority filter dropdown
+  3. Tasks table (title, project, assignee, priority, status, due date)
+  4. Task Detail modal (opened on row click)
 - Explanation of Each Numbered Part:
--   1. Provides direct visibility of work items bounded entirely by current context (the parent project).
--   2. Triggers fully-validated form inputs tied identically to the backend serialization schema.
--   3. Offers a clean perspective on task description and immutable timestamps away from the main list.
+  1. Filters the displayed task list by status (e.g. To Do, In Progress, Blocked).
+  2. Filters the displayed task list by priority (e.g. Low, Medium, High, Critical).
+  3. Renders real task records fetched from `/api/v1/tasks/` sorted by most recently created.
+  4. Displays full task details including description, assignee, due date, and timestamps in a clean read-only panel.
 - Security Note:
--   - Write actions (Create/Update) are strictly enforced against `Admin` or `Project Manager` roles mapped by backend context authorization.
--   - Standard `Team Members` naturally inherit a safe, read-only perspective that eliminates accidental non-compliant status shifts or destructive changes.
+  - The global Tasks page is intentionally read-only. Task creation and editing are scoped to the respective Project Detail view.
+  - Backend authorization restricts task visibility to tasks within projects the user belongs to.
+- Evidence File Name:
+
+#### 1.2.6b Project-Scoped Task Management (inside Project Detail)
+- Screenshot Title:
+- Figure Number:
+- Numbered UI Labels:
+  1. Project Tasks section inside Project Detail
+  2. "New Task" button (visible to Admin / Project Manager only)
+  3. Task Form modal (create or edit)
+  4. Task Detail modal (view on row click)
+- Explanation of Each Numbered Part:
+  1. Renders tasks filtered to the current project via `?project={id}` query parameter.
+  2. Conditionally shown based on the current user's role; absent for Team Members.
+  3. Zod-validated form submitting to `POST /api/v1/tasks/` or `PATCH /api/v1/tasks/{id}/`.
+  4. Read-only detail panel with an "Edit Task" button for authorized roles.
+- Security Note:
+  - Write actions (Create/Update) are strictly enforced server-side against `Admin` or `Project Manager` roles.
+  - `Team Members` see the task list but have no mutation controls visible in the UI.
 - Evidence File Name:
 
 ### 1.2.7 Remaining Module Placeholders (Current State)
@@ -210,9 +234,9 @@ Security note for this stage:
 
 ### 1.2.8 Planned Detailed Module Sections (To Complete Later)
 When module implementation is available, expand this manual with dedicated sections for:
-1. Dashboard functional widgets
-2. Projects list and project details
-3. Tasks list and task details
+1. Dashboard functional widgets (partially documented; analytics in progress)
+2. Projects list and project details (documented above)
+3. Tasks list and task details (documented above)
 4. Comments and attachments workflows
 5. Notifications workflow
 6. Activity Log filtering and interpretation
