@@ -2,7 +2,6 @@ import { useAuthStore } from '@/features/auth/store/authStore'
 
 export function useAuthSession() {
   const accessToken = useAuthStore((state) => state.accessToken)
-  const refreshToken = useAuthStore((state) => state.refreshToken)
   const currentUser = useAuthStore((state) => state.currentUser)
   const setSession = useAuthStore((state) => state.setSession)
   const setCurrentUser = useAuthStore((state) => state.setCurrentUser)
@@ -13,7 +12,6 @@ export function useAuthSession() {
 
   return {
     accessToken,
-    refreshToken,
     currentUser,
     userDisplayName,
     isAuthenticated: Boolean(accessToken),
