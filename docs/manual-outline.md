@@ -167,23 +167,25 @@ Current status:
   - Role-based project visibility and member modifications (Admin / Owner vs generic Member) are partially structured on the frontend and must align with the DRF endpoint checks.
 - Evidence File Name:
 
-### 1.2.6 Tasks Module (Scaffold Placeholder)
-Current scaffold status:
-- Tasks route currently renders placeholder content.
-- Task list, assignment, status changes, and detail workflows are in progress.
+### 1.2.6 Tasks Module
+Current status:
+- The Tasks module is now implemented and integrated natively into the Project Detail page.
+- Project-scoped task lists display assignments, statuses, priorities, and due dates dynamically via backend endpoints.
+- Task creation, assignment, and status/detail updates are fully functional.
 
 - Screenshot Title:
 - Figure Number:
 - Numbered UI Labels:
-  1. Tasks route title
-  2. Placeholder message panel
-  3. Shell navigation area
+-   1. Project Tasks Table and active assigned elements
+-   2. "New Task" and "Edit" action buttons
+-   3. Task Detailed viewing panel (modal)
 - Explanation of Each Numbered Part:
-  1. Confirms route-level scaffold for Tasks.
-  2. Indicates feature implementation is pending.
-  3. Maintains consistent protected-layout navigation.
+-   1. Provides direct visibility of work items bounded entirely by current context (the parent project).
+-   2. Triggers fully-validated form inputs tied identically to the backend serialization schema.
+-   3. Offers a clean perspective on task description and immutable timestamps away from the main list.
 - Security Note:
-  - Object-level task authorization is planned and must be enforced server-side once endpoints exist.
+-   - Write actions (Create/Update) are strictly enforced against `Admin` or `Project Manager` roles mapped by backend context authorization.
+-   - Standard `Team Members` naturally inherit a safe, read-only perspective that eliminates accidental non-compliant status shifts or destructive changes.
 - Evidence File Name:
 
 ### 1.2.7 Remaining Module Placeholders (Current State)
