@@ -55,7 +55,7 @@ export function ProjectHeader({ project }: ProjectHeaderProps) {
                 Overall Progress
               </span>
               <span className="text-sm font-bold text-base-content tabular-nums">
-                {project.tasksCompleted} / {project.tasksTotal} tasks
+                {project.task_count} tasks total
               </span>
             </div>
             <ProgressIndicator value={project.progress} showLabel={true} size="md" />
@@ -68,7 +68,7 @@ export function ProjectHeader({ project }: ProjectHeaderProps) {
                 Owner
               </p>
               <p className="mt-1 text-sm font-medium text-base-content">
-                {project.owner.name}
+                {project.owner?.display_name || 'Unassigned'}
               </p>
             </div>
             <div>
@@ -76,7 +76,7 @@ export function ProjectHeader({ project }: ProjectHeaderProps) {
                 Due Date
               </p>
               <p className="mt-1 text-sm font-medium text-base-content">
-                {project.dueDate}
+                {project.due_date ? new Date(project.due_date).toLocaleDateString() : 'No date'}
               </p>
             </div>
             <div>
@@ -84,7 +84,7 @@ export function ProjectHeader({ project }: ProjectHeaderProps) {
                 Team Size
               </p>
               <p className="mt-1 text-sm font-medium text-base-content">
-                {project.members.length} member{project.members.length !== 1 ? 's' : ''}
+                {project.members?.length || 0} member{(project.members?.length || 0) !== 1 ? 's' : ''}
               </p>
             </div>
           </div>
