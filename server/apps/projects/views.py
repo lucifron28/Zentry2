@@ -1,11 +1,17 @@
 from rest_framework import viewsets, filters, status
 from rest_framework.decorators import action
+from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 
-from .models import Project
-from .serializers import ProjectSerializer, ProjectCreateUpdateSerializer
-from .permissions import ProjectsAccessPermission
+from apps.core.audit import log_audit_event
 from apps.users.models import User
+from .models import Project
+from .serializers import (
+    ProjectCreateUpdateSerializer,
+    ProjectMemberMutationSerializer,
+    ProjectSerializer,
+)
+from .permissions import ProjectsAccessPermission
 
 
 class ProjectViewSet(viewsets.ModelViewSet):
@@ -36,30 +42,61 @@ class ProjectViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user, members=[self.request.user])
 
+    def _get_member_target_user(self, request):
+        serializer = ProjectMemberMutationSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        user_id = serializer.validated_data["user_id"]
+        user = User.objects.filter(pk=user_id, is_active=True).first()
+        if user is None:
+            raise ValidationError({"user_id": ["User not found."]})
+
+        return user
+
+    def _serialize_project(self, project):
+        refreshed_project = (
+            Project.objects.select_related("owner").prefetch_related("members").get(pk=project.pk)
+        )
+        serializer = self.get_serializer(refreshed_project)
+        return serializer.data
+
     @action(detail=True, methods=["post"])
     def members(self, request, pk=None):
         project = self.get_object()
-        user_id = request.data.get("user_id")
-        if not user_id:
-            return Response({"error": "user_id is required"}, status=status.HTTP_400_BAD_REQUEST)
-        
-        try:
-            user = User.objects.get(pk=user_id)
-            project.members.add(user)
-            return Response(ProjectSerializer(project).data)
-        except User.DoesNotExist:
-            return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+        user = self._get_member_target_user(request)
+
+        if project.members.filter(pk=user.pk).exists():
+            raise ValidationError({"non_field_errors": ["User is already a project member."]})
+
+        project.members.add(user)
+        log_audit_event(
+            action="project_member_added",
+            actor_id=request.user.id,
+            details={
+                "project_id": project.id,
+                "member_user_id": user.id,
+            },
+        )
+        return Response(self._serialize_project(project), status=status.HTTP_200_OK)
 
     @members.mapping.delete
     def remove_member(self, request, pk=None):
         project = self.get_object()
-        user_id = request.data.get("user_id")
-        if not user_id:
-            return Response({"error": "user_id is required"}, status=status.HTTP_400_BAD_REQUEST)
-        
-        try:
-            user = User.objects.get(pk=user_id)
-            project.members.remove(user)
-            return Response(ProjectSerializer(project).data)
-        except User.DoesNotExist:
-            return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+        user = self._get_member_target_user(request)
+
+        if project.owner_id == user.id:
+            raise ValidationError({"non_field_errors": ["Project owner cannot be removed from members."]})
+
+        if not project.members.filter(pk=user.pk).exists():
+            raise ValidationError({"non_field_errors": ["User is not a project member."]})
+
+        project.members.remove(user)
+        log_audit_event(
+            action="project_member_removed",
+            actor_id=request.user.id,
+            details={
+                "project_id": project.id,
+                "member_user_id": user.id,
+            },
+        )
+        return Response(self._serialize_project(project), status=status.HTTP_200_OK)

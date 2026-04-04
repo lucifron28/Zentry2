@@ -4,6 +4,10 @@ from apps.users.serializers import UserSummarySerializer
 from .models import Project
 
 
+class ProjectMemberMutationSerializer(serializers.Serializer):
+    user_id = serializers.IntegerField(min_value=1)
+
+
 class ProjectSerializer(serializers.ModelSerializer):
     owner = UserSummarySerializer(read_only=True)
     members = UserSummarySerializer(many=True, read_only=True)

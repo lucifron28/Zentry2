@@ -1,7 +1,9 @@
 import { httpClient } from '@/services/api/client/httpClient'
 import { PROJECTS_ENDPOINTS } from '@/services/api/endpoints/projectsEndpoints'
+import { USERS_ENDPOINTS } from '@/services/api/endpoints/usersEndpoints'
 import type { Project } from '@/features/projects/types/project'
 import type { ProjectCreateInput } from '@/features/projects/schemas/projectSchema'
+import type { ApiUser } from '@/features/projects/types/project'
 
 type UseProjectsParams = {
   status?: string
@@ -10,6 +12,10 @@ type UseProjectsParams = {
   ordering?: string
   limit?: number
   page?: number
+}
+
+type ListUsersParams = {
+  page_size?: number
 }
 
 export type PaginatedResponse<T> = {
@@ -45,4 +51,35 @@ export async function createProject(payload: ProjectCreateInput): Promise<void> 
     category: payload.category.trim(),
     due_date: payload.due_date || null,
   })
+}
+
+export async function addProjectMember(
+  projectId: string | number,
+  userId: string | number,
+): Promise<Project> {
+  const { data } = await httpClient.post<Project>(PROJECTS_ENDPOINTS.members(projectId), {
+    user_id: userId,
+  })
+  return data
+}
+
+export async function removeProjectMember(
+  projectId: string | number,
+  userId: string | number,
+): Promise<Project> {
+  const { data } = await httpClient.delete<Project>(PROJECTS_ENDPOINTS.members(projectId), {
+    data: {
+      user_id: userId,
+    },
+  })
+  return data
+}
+
+export async function listActiveUsers(
+  params?: ListUsersParams,
+): Promise<PaginatedResponse<ApiUser>> {
+  const { data } = await httpClient.get<PaginatedResponse<ApiUser>>(USERS_ENDPOINTS.list, {
+    params,
+  })
+  return data
 }
