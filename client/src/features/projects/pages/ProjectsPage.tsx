@@ -1,19 +1,17 @@
-import { useState, useMemo } from 'react'
+import { useState } from 'react'
 import { PageHeader } from '@/shared/ui/data/PageHeader'
 import { FilterToolbar } from '@/features/projects/components/FilterToolbar'
 import { ProjectsTable } from '@/features/projects/components/ProjectsTable'
 import { InsightPanel } from '@/features/projects/components/InsightPanel'
-import { PROJECTS_MOCK } from '@/features/projects/data/projectsMockData'
+import { useProjects } from '@/features/projects/hooks/useProjects'
 import type { ProjectStatus } from '@/shared/ui/data/StatusBadge'
 
 const INSIGHT = {
   headline: 'Horizon Terminal Phase II is ahead of schedule',
-  body: 'At 64% completion, current velocity suggests a finish 12 days before the Oct 24 deadline. Starlight Server Integration is picking up pace — worth reviewing resourcing before Nov 12.',
+  body: 'At 64% completion, current velocity suggests a finish 12 days before the Oct 24 deadline.',
   healthScore: 87,
   healthLabel: 'Overall system projects are running 15% more efficiently than last quarter.',
 }
-
-const PAGE_SIZE = 6
 
 export function ProjectsPage() {
   const [search, setSearch] = useState('')
@@ -21,36 +19,30 @@ export function ProjectsPage() {
   const [sortBy, setSortBy] = useState<'name' | 'progress' | 'dueDate' | 'status'>('name')
   const [page, setPage] = useState(1)
 
-  const filtered = useMemo(() => {
-    let result = PROJECTS_MOCK
+  // Map sort keys to Django ordering strings
+  const orderingMap: Record<string, string> = {
+    name: 'name',
+    progress: '-progress',
+    dueDate: 'due_date',
+    status: 'status',
+  }
 
-    if (search.trim()) {
-      const q = search.toLowerCase()
-      result = result.filter(
-        (p) =>
-          p.name.toLowerCase().includes(q) ||
-          p.category.toLowerCase().includes(q) ||
-          p.owner.name.toLowerCase().includes(q),
-      )
-    }
+  const { data, isLoading } = useProjects({
+    page,
+    search: search || undefined,
+    status: statusFilter !== 'all' ? statusFilter : undefined,
+    ordering: orderingMap[sortBy] || 'name',
+    // limit/pageSize is handled automatically by DRF if we set PAGE_SIZE=20.
+    // For smaller pagination we could pass limit if the API supports it.
+  })
 
-    if (statusFilter !== 'all') {
-      result = result.filter((p) => p.status === statusFilter)
-    }
+  const projects = data?.results || []
+  
+  // DRF total pages based on count and pagination settings (assuming 20 page_size)
+  const pageSize = 20
+  const totalCount = data?.count || 0
+  const totalPages = Math.max(1, Math.ceil(totalCount / pageSize))
 
-    return [...result].sort((a, b) => {
-      if (sortBy === 'name') return a.name.localeCompare(b.name)
-      if (sortBy === 'progress') return b.progress - a.progress
-      if (sortBy === 'dueDate') return a.dueDate.localeCompare(b.dueDate)
-      if (sortBy === 'status') return a.status.localeCompare(b.status)
-      return 0
-    })
-  }, [search, statusFilter, sortBy])
-
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
-  const paged = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
-
-  // Reset to page 1 when filters change
   const handleSearch = (v: string) => { setSearch(v); setPage(1) }
   const handleStatus = (v: ProjectStatus | 'all') => { setStatusFilter(v); setPage(1) }
   const handleSort = (v: 'name' | 'progress' | 'dueDate' | 'status') => { setSortBy(v); setPage(1) }
@@ -68,7 +60,6 @@ export function ProjectsPage() {
       />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-4">
-        {/* Main content */}
         <div className="space-y-4 lg:col-span-3">
           <FilterToolbar
             search={search}
@@ -79,14 +70,13 @@ export function ProjectsPage() {
             onSortChange={handleSort}
           />
 
-          <ProjectsTable projects={paged} />
+          <ProjectsTable projects={projects} isLoading={isLoading} />
 
-          {/* Pagination */}
           {totalPages > 1 && (
             <div className="flex items-center justify-between pt-1">
               <p className="text-xs text-base-content/55">
-                Showing {(page - 1) * PAGE_SIZE + 1}–
-                {Math.min(page * PAGE_SIZE, filtered.length)} of {filtered.length} projects
+                Showing {(page - 1) * pageSize + 1}–
+                {Math.min(page * pageSize, totalCount)} of {totalCount} projects
               </p>
               <div className="join">
                 <button
@@ -117,7 +107,6 @@ export function ProjectsPage() {
           )}
         </div>
 
-        {/* Sidebar insight */}
         <div className="lg:col-span-1">
           <InsightPanel
             headline={INSIGHT.headline}
