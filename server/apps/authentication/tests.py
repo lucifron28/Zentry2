@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -21,7 +22,7 @@ class AuthenticationApiTests(APITestCase):
         self.refresh_url = reverse("authentication:refresh")
         self.me_url = reverse("authentication:me")
 
-    def test_login_returns_tokens_and_safe_user_payload(self):
+    def test_login_returns_access_and_safe_user_payload(self):
         response = self.client.post(
             self.login_url,
             {"email": self.user.email, "password": self.password},
@@ -30,8 +31,10 @@ class AuthenticationApiTests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn("access", response.data)
-        self.assertIn("refresh", response.data)
+        self.assertNotIn("refresh", response.data)
         self.assertIn("user", response.data)
+        self.assertIn(settings.AUTH_COOKIE_REFRESH_NAME, response.cookies)
+        self.assertTrue(response.cookies[settings.AUTH_COOKIE_REFRESH_NAME].value)
         self.assertEqual(response.data["user"]["email"], self.user.email)
         self.assertEqual(response.data["user"]["role"], User.Role.PROJECT_MANAGER)
         self.assertNotIn("password", response.data["user"])
@@ -51,16 +54,18 @@ class AuthenticationApiTests(APITestCase):
             {"email": self.user.email, "password": self.password},
             format="json",
         )
-        refresh_token = login_response.data["refresh"]
+        self.assertEqual(login_response.status_code, status.HTTP_200_OK)
+        self.assertIn(settings.AUTH_COOKIE_REFRESH_NAME, login_response.cookies)
 
         response = self.client.post(
             self.refresh_url,
-            {"refresh": refresh_token},
+            {},
             format="json",
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn("access", response.data)
+        self.assertNotIn("refresh", response.data)
 
     def test_me_requires_authentication(self):
         response = self.client.get(self.me_url)
