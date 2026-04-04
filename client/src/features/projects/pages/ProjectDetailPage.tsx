@@ -4,39 +4,16 @@ import { MembersCard } from '@/features/projects/components/MembersCard'
 import { MilestonesCard } from '@/features/projects/components/MilestonesCard'
 import { ProjectActivityCard } from '@/features/projects/components/ProjectActivityCard'
 import { InsightPanel } from '@/features/projects/components/InsightPanel'
-import { PROJECTS_MOCK } from '@/features/projects/data/projectsMockData'
 import { APP_ROUTES } from '@/shared/constants/routes'
+import { useProject } from '@/features/projects/hooks/useProject'
 import type { Milestone } from '@/features/projects/components/MilestonesCard'
 import type { ActivityItem } from '@/shared/ui/data/ActivityList'
-import type { Member } from '@/shared/ui/data/AvatarGroup'
-
-// Scaffold milestone data by project — replace with API call later
-const PROJECT_MILESTONES: Record<string, Milestone[]> = {
-  p1: [
-    { id: 'm1', title: 'Phase 1: Foundation Architecture', dueLabel: 'Completed', assignee: 'Alex Rivera' },
-    { id: 'm2', title: 'Phase 2: Technical Layouts', dueLabel: 'Due tomorrow • Design Team', assignee: 'Sarah Chen' },
-    { id: 'm3', title: 'Phase 3: Integration Testing', dueLabel: 'Due Oct 20 • QA', assignee: 'Marcus Wright' },
-  ],
-  p5: [
-    { id: 'm1', title: 'Q1 Brand Guidelines Finalization', dueLabel: 'Due tomorrow • Design Team', assignee: 'Elena Vance' },
-    { id: 'm2', title: 'Developer Portal Alpha Test', dueLabel: 'Due Oct 24 • Tech Lead', assignee: 'Jordan Ridley' },
-    { id: 'm3', title: 'Security Audit Feedback Loop', dueLabel: 'Overdue by 2 days • Security', assignee: 'Security Dept', overdue: true },
-  ],
-}
+import type { ApiUser } from '@/features/projects/types/project'
 
 const DEFAULT_MILESTONES: Milestone[] = [
   { id: 'm1', title: 'Initial Scoping & Requirements', dueLabel: 'Completed', assignee: 'Project Lead' },
   { id: 'm2', title: 'Design Review & Approval', dueLabel: 'In progress', assignee: 'Design Team' },
 ]
-
-// Scaffold activity data by project — replace with API call later
-const PROJECT_ACTIVITY: Record<string, ActivityItem[]> = {
-  p5: [
-    { id: 'a1', actor: 'Elena Vance', actorInitials: 'EV', action: 'updated the strategy document', timestamp: '20m ago' },
-    { id: 'a2', actor: 'Jordan Ridley', actorInitials: 'JR', action: 'created milestone: Alpha Test', timestamp: '2h ago' },
-    { id: 'a3', actor: 'Finance Dept', actorInitials: 'FD', action: 'approved budget allocation', timestamp: '1d ago' },
-  ],
-}
 
 const DEFAULT_ACTIVITY: ActivityItem[] = [
   { id: 'a1', actor: 'System', actorInitials: 'SY', action: 'created this project', timestamp: '3 weeks ago' },
@@ -44,37 +21,38 @@ const DEFAULT_ACTIVITY: ActivityItem[] = [
   { id: 'a3', actor: 'System', actorInitials: 'SY', action: 'project status set to active', timestamp: '2 weeks ago' },
 ]
 
-// Scaffold member roles — replace with API data later
-const MEMBER_ROLES: Record<string, string> = {
-  AR: 'Project Lead',
-  SC: 'Senior Designer',
-  MW: 'QA Engineer',
-  ER: 'Product Manager',
-  JR: 'Senior Strategist',
-  SG: 'UX Researcher',
-  DP: 'Developer',
-}
-
 export function ProjectDetailPage() {
   const { id } = useParams<{ id: string }>()
-  const project = PROJECTS_MOCK.find((p) => p.id === id)
+  
+  const { data: project, isLoading, isError } = useProject(id as string)
 
-  if (!project) {
+  if (isLoading) {
+    return (
+      <div className="flex h-64 items-center justify-center">
+        <span className="loading loading-spinner text-primary"></span>
+      </div>
+    )
+  }
+
+  if (isError || !project) {
     return <Navigate replace to={APP_ROUTES.projects} />
   }
 
-  const milestones = PROJECT_MILESTONES[project.id] ?? DEFAULT_MILESTONES
-  const activity = PROJECT_ACTIVITY[project.id] ?? DEFAULT_ACTIVITY
-  const membersWithRoles: (Member & { role?: string })[] = project.members.map((m) => ({
+  const milestones = DEFAULT_MILESTONES
+  const activity = DEFAULT_ACTIVITY
+  
+  const membersWithRoles = (project.members || []).map((m: ApiUser) => ({
     ...m,
-    role: MEMBER_ROLES[m.initials],
+    projectRole: m.role || 'Member',
   }))
 
+  const dueDateStr = project.due_date ? new Date(project.due_date).toLocaleDateString() : 'no date'
+  
   const insight = {
     headline: `${project.name} — ${project.progress}% complete`,
     body: project.progress >= 50
-      ? `At ${project.progress}% completion, this project is making solid progress. Current velocity suggests the team is on track for the ${project.dueDate} deadline.`
-      : `This project is in early stages at ${project.progress}% complete. Ensure milestone dependencies are resolved to maintain delivery pace toward ${project.dueDate}.`,
+      ? `At ${project.progress}% completion, this project is making solid progress. Current velocity suggests the team is on track for the ${dueDateStr} deadline.`
+      : `This project is in early stages at ${project.progress}% complete. Ensure milestone dependencies are resolved to maintain delivery pace toward ${dueDateStr}.`,
     healthScore: Math.min(100, project.progress + 15),
     healthLabel: project.status === 'overdue'
       ? 'This project is past its original deadline. Prioritize blockers.'
