@@ -1,9 +1,13 @@
-from django.urls import path
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
 
-from .views import ProjectsHealthView
+from .views import ProjectViewSet
 
 app_name = "projects"
 
+router = DefaultRouter()
+router.register(r"", ProjectViewSet, basename="project")
+
 urlpatterns = [
-    path("health/", ProjectsHealthView.as_view(), name="health"),
+    path("", include(router.urls)),
 ]
