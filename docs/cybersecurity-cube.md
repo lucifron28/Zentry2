@@ -10,7 +10,8 @@ This section is a structured draft for Zentry cybersecurity documentation. Use t
 ### 2.1.1 Data Confidentiality
 Zentry-specific guidance:
 - Implemented:
-  - Backend custom user model includes explicit role values for Admin, Project Manager, and Team Member.
+  - Backend custom user model for global roles, augmented by a `ProjectMembership` model for contextual roles (OWNER, MANAGER, MEMBER).
+  - Any authenticated user can create a project and become its OWNER.
   - Backend auth endpoints exist for login, refresh, logout, and current-user retrieval.
   - Refresh token is handled through an HttpOnly cookie, reducing direct JavaScript access.
   - Logout clears the refresh cookie server-side.
@@ -19,7 +20,7 @@ Zentry-specific guidance:
   - Client request interceptor attaches Bearer access token when available.
 - In Progress:
   - Refresh-token revocation hardening beyond cookie clearing (for example blacklist-based invalidation).
-  - Module-level and object-level backend authorization wiring is ongoing.
+  - Project-contextual authorization for remaining domain objects (Comments, Attachments).
 - Planned:
   - Finalized authorization matrices per module and role.
   - Attachment-level confidentiality controls after upload pipeline completion.
@@ -141,7 +142,8 @@ Zentry-specific guidance:
 ### 2.3.3 People
 Zentry-specific guidance:
 - Implemented:
-  - Role definitions are documented: Admin, Project Manager, Team Member.
+  - Global roles: Admin, Project Manager (Legacy), Team Member.
+  - Project-level roles: OWNER, MANAGER, MEMBER.
 - In Progress:
   - Role-specific workflow validation is pending module-level implementation.
 - Planned:

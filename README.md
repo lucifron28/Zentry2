@@ -10,9 +10,9 @@ Purpose:
 - Support secure and role-aware workflows for team collaboration.
 
 Target users:
-- Admin
-- Project Manager
-- Team Member
+- Admin (System-wide)
+- Project Owner (Creator or successor)
+- Project Member (Assigned roles: Manager, Member)
 
 ## Locked Technology Stack
 Frontend:
@@ -33,9 +33,15 @@ Backend:
 - Simple JWT
 
 ## Locked Roles
+Global Roles:
 - Admin
-- Project Manager
+- Project Manager (Legacy)
 - Team Member
+
+Project-Level Roles (Contextual):
+- OWNER (Full control, including deletion)
+- MANAGER (Project/Task management)
+- MEMBER (Read-only, task status updates)
 
 ## Locked Modules
 - Authentication
@@ -70,6 +76,8 @@ zentry2/
 ## Current Development Status
 Current status summary:
 - The repository is now well-scaffolded for development and documentation tracking.
+- **Democratized Project Creation**: Any authenticated user can now create a project. The creator is automatically assigned as the project OWNER.
+- **Project-Contextual Authorization**: Permissions for projects and tasks are now governed by project-level roles (OWNER, MANAGER, MEMBER) instead of global role gates, with Admin retaining full override.
 - Frontend shell and navigation structure are implemented. The Projects and Dashboard modules have moved beyond scaffold-only states and now consume real backend data, utilizing honest empty states for any features still under development.
 - Backend authentication is implemented utilizing an HttpOnly refresh cookie and memory-only access token.
 

@@ -162,13 +162,13 @@ Optional details for stronger exam documentation:
 **Purpose:** Implement functional task management within the Project scope, honoring existing backend business rules and strict role-based mutations.
 **Pages affected:** Project Detail Page, Dashboard Page
 **API endpoints:** `GET /api/v1/tasks/`, `POST /api/v1/tasks/`, `PATCH /api/v1/tasks/{id}/`
-**Security note:** strict role-based access is enforced server-side. Creation and editing and assignment are inherently limited to `Admin` and `Project Manager` roles. `Team Member` access acts as read-only according to the backend constraints. Dashboard naturally honors assignment isolation.
+**Security note:** strict role-based access is enforced server-side. Creation and editing and assignment are limited to project `OWNER` or `MANAGER` roles (as well as system `Admin`). `MEMBER` role access acts as read-only according to the backend constraints. Dashboard naturally honors assignment isolation.
 **Evidence saved:** `project-tasks-slice-implementation.png`
 
 Optional details for stronger exam documentation:
 - User flow summary: Users browse a project's tasks inline, create new tasks using the validated form modal, and update assignments, due dates, statuses accurately. Changes instantly reflect on the personalized dashboard focus card.
 - Role(s) tested: Project Manager (mutations), Team Member (read-only)
-- Validation or permission behavior observed: Server-side rejections properly map back to the Zod-backed user form fields, preventing unauthorized modifications from Team Members.
+- Validation or permission behavior observed: Server-side rejections properly map back to the Zod-backed user form fields, preventing unauthorized modifications from regular project `MEMBERS`.
 - Follow-up actions: Finalize remaining activity feeds.
 
 ## Entry 11
@@ -177,11 +177,25 @@ Optional details for stronger exam documentation:
 **Purpose:** Replace the scaffold placeholder at the `/tasks` route with the real TasksPage and confirm the complete frontend Tasks slice is wired end-to-end (global view, project-scoped view, create/edit flow).
 **Pages affected:** Tasks Page (`/tasks`), Project Detail Page
 **API endpoints:** `GET /api/v1/tasks/`, `POST /api/v1/tasks/`, `PATCH /api/v1/tasks/{id}/`
-**Security note:** Task mutation endpoints enforce role-based access server-side. `Admin` and `Project Manager` roles may create and update tasks; `Team Member` access is strictly read-only by backend constraint. The global Tasks page is intentionally read-only on the frontend as well — task creation and editing are scoped to the Project Detail context to maintain correct project assignment boundaries.
+**Security note:** Task mutation endpoints enforce role-based access server-side. Project `OWNER` and `MANAGER` roles (as well as system `Admin`) may create and update tasks; project `MEMBER` access is strictly read-only by backend constraint. The global Tasks page is intentionally read-only on the frontend as well — task creation and editing are scoped to the Project Detail context to maintain correct project assignment boundaries.
 **Evidence saved:** `tasks-route-wired-global-page.png`
 
 Optional details for stronger exam documentation:
-- User flow summary: Authenticated users navigate to `/tasks` and see a filterable table of all tasks in their accessible projects. Clicking a row opens a read-only detail modal. Project Managers and Admins navigate to a project detail page and can create or edit tasks via validated modals there.
-- Role(s) tested: Admin and Project Manager (mutations via Project Detail), Team Member (read-only in both views)
-- Validation or permission behavior observed: New Task and Edit controls are absent for Team Members; backend returns HTTP 403 if a Team Member attempts a mutation directly.
+- Role(s) tested: Admin, Project Owner, and Project Manager (mutations via Project Detail), Project Member (read-only in both views)
+- Validation or permission behavior observed: New Task and Edit controls are absent for project `MEMBERS`; backend returns HTTP 403 if an unauthorized member attempts a mutation directly.
 - Follow-up actions: Document screenshot evidence for Tasks section; add milestone and activity log backend support when ready.
+
+## Entry 12
+### Feature: Democratized Project Creation and Contextual Permission Migration
+**Date:** 2026-04-05
+**Purpose:** Remove the global Project Manager gate for project creation and transition to a project-centric authorization model where authority is derived from membership roles (`OWNER`, `MANAGER`, `MEMBER`).
+**Pages affected:** Projects Page, Dashboard Page, Project Detail Page
+**API endpoints:** `POST /api/v1/projects/`, `GET /api/v1/projects/{id}/`, `GET /api/v1/projects/{id}/members/`
+**Security note:** Any authenticated user can now create a project and is automatically assigned as the `OWNER` of that project’s workspace. Capability flags (e.g., `can_edit`, `can_manage_tasks`) are now exposed in the Project API to guide the frontend UI, while the backend remains the authoritative enforcer of these project-specific boundaries.
+**Evidence saved:** `democratized-project-creation-and-contextual-roles.png`
+
+Optional details for stronger exam documentation:
+- User flow summary: A regular user logs in, creates a new project from the Dashboard or Projects list, and is immediately granted OWNER rights for that project. They can then add members and manage tasks without needing a global Project Manager role.
+- Role(s) tested: Any Authenticated User (creation), Project Owner, Project Manager, Project Member.
+- Validation or permission behavior observed: Frontend UI dynamically hides/shows management controls based on the backend-provided `user_permissions` block. Admin role maintains system-wide oversight across all projects.
+- Follow-up actions: Finalize member-role assignment UI.

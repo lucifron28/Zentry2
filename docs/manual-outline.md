@@ -5,9 +5,9 @@ This section will describe the purpose of Zentry, target users, major modules, a
 
 Suggested points to document:
 - What Zentry solves for project teams
-- Who uses the system (Admin, Project Manager, Team Member)
+- Who uses the system (Global Admin, Project Owner, Project Manager, Project Member)
 - What each major module contributes to the workflow
-- Boundaries of the current implementation stage
+- Boundaries of the current implementation stage (Project-contextual authority)
 
 ## 1.2 Step-by-Step System Guide
 Use this guide format for each page so screenshots and explanations remain consistent.
@@ -137,12 +137,14 @@ Current status:
   1. Top stat row (Projects, Tasks, Pendings)
   2. Active Projects panel
   3. Focus Tasks panel
-  4. In-progress Insight/Activity panels
+  4. "New Project" action button
+  5. In-progress Insight/Activity panels
 - Explanation of Each Numbered Part:
   1. Summarizes high-level user assignment metrics.
   2. Shows up to 5 real active projects the user is involved in.
   3. Shows user's assigned in-progress tasks ordered by due date.
-  4. Explicitly labeled empty states indicating analytical scope is still under integration.
+  4. Allows any authenticated user to quickly start a new project.
+  5. Explicitly labeled empty states indicating analytical scope is still under integration.
 - Security Note:
   - Dashboard panels query DRF endpoints that enforce user assignment authorization logic.
 - Evidence File Name:
@@ -150,6 +152,7 @@ Current status:
 ### 1.2.5 Projects Module
 Current status:
 - The Projects list and Project Detail pages are wired to real backend endpoints.
+- **Democratized Creation**: Any user can create a project and become its OWNER.
 - Base data like title, priority, status, completion progress, and member assignment are functional.
 - Milestone tracking and activity feed components display honest empty placeholders while backend work catches up.
 
@@ -164,7 +167,7 @@ Current status:
   2. Shows assigned team members handling this specific environment boundary.
   3. Makes it clear which tracking functions are not yet finalized structurally.
 - Security Note:
-  - Role-based project visibility and member modifications (Admin / Owner vs generic Member) are partially structured on the frontend and must align with the DRF endpoint checks.
+  - Role-based project visibility and member modifications are enforced through project-contextual roles (`OWNER`, `MANAGER`, `MEMBER`) where `OWNER` has full administrative control over the project workspace.
 - Evidence File Name:
 
 ### 1.2.6 Tasks Module
@@ -173,8 +176,8 @@ Current status:
 - The Tasks page supports status and priority filtering and displays tasks across all accessible projects.
 - Clicking a task row opens a read-only Task Detail modal with the full task record.
 - Project-scoped task management (create, edit, status updates) is embedded directly inside Project Detail for authorized roles.
-- Task creation, editing, and assignments are restricted to `Admin` and `Project Manager` roles by backend enforcement.
-- `Team Members` see a read-only task view in both the global Tasks page and the Project Detail task section.
+- Task creation, editing, and assignments are restricted to project `OWNER` and `MANAGER` roles (as well as system `Admin`) by backend enforcement.
+- `Project Members` see a read-only task view in both the global Tasks page and the Project Detail task section.
 
 #### 1.2.6a Global Tasks Page (`/tasks`)
 - Screenshot Title:
@@ -199,7 +202,7 @@ Current status:
 - Figure Number:
 - Numbered UI Labels:
   1. Project Tasks section inside Project Detail
-  2. "New Task" button (visible to Admin / Project Manager only)
+  2. "New Task" button (visible to project OWNER / MANAGER only)
   3. Task Form modal (create or edit)
   4. Task Detail modal (view on row click)
 - Explanation of Each Numbered Part:
@@ -208,8 +211,8 @@ Current status:
   3. Zod-validated form submitting to `POST /api/v1/tasks/` or `PATCH /api/v1/tasks/{id}/`.
   4. Read-only detail panel with an "Edit Task" button for authorized roles.
 - Security Note:
-  - Write actions (Create/Update) are strictly enforced server-side against `Admin` or `Project Manager` roles.
-  - `Team Members` see the task list but have no mutation controls visible in the UI.
+  - Write actions (Create/Update) are strictly enforced server-side against system `Admin` or project `OWNER`/`MANAGER` roles.
+  - `Project Members` see the task list but have no mutation controls visible in the UI.
 - Evidence File Name:
 
 ### 1.2.7 Remaining Module Placeholders (Current State)
