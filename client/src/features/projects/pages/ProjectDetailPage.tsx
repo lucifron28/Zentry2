@@ -12,7 +12,6 @@ import { useAddProjectMember } from '@/features/projects/hooks/useAddProjectMemb
 import { useProject } from '@/features/projects/hooks/useProject'
 import { useRemoveProjectMember } from '@/features/projects/hooks/useRemoveProjectMember'
 import { ProjectTasksCard } from '@/features/tasks/components/ProjectTasksCard'
-import { useAuthSession } from '@/features/auth/hooks/useAuthSession'
 import type { ApiUser } from '@/features/projects/types/project'
 import { ErrorState } from '@/shared/ui/states/ErrorState'
 import { LoadingState } from '@/shared/ui/states/LoadingState'
@@ -79,7 +78,6 @@ function parseMemberMutationError(error: unknown, fallbackMessage: string): stri
 export function ProjectDetailPage() {
   const navigate = useNavigate()
   const { id } = useParams<{ id: string }>()
-  const { currentUser } = useAuthSession()
   const projectId = id || ''
   const [isAddMemberModalOpen, setIsAddMemberModalOpen] = useState(false)
   const [addMemberError, setAddMemberError] = useState<string | null>(null)
@@ -106,15 +104,8 @@ export function ProjectDetailPage() {
     )
   }
 
-  const canManageMembers = Boolean(
-    currentUser &&
-      (currentUser.role === 'admin' || normalizeId(currentUser.id) === normalizeId(project.owner?.id)),
-  )
-
-  const canManageTasks = Boolean(
-    currentUser && 
-      (currentUser.role === 'admin' || currentUser.role === 'project_manager'),
-  )
+  const canManageMembers = project.user_permissions.can_manage_members
+  const canManageTasks = project.user_permissions.can_manage_tasks
 
   const milestones: any[] = []
   const activity: any[] = []

@@ -297,3 +297,19 @@ class ProjectAccessPolicyTests(APITestCase):
         self.assertIn(self.owned_project.id, project_ids)
         self.assertIn(self.member_project.id, project_ids)
         self.assertIn(self.hidden_project.id, project_ids)
+
+    def test_project_detail_includes_capabilities(self):
+        # project_manager is MANAGER in member_project
+        self._auth_as(self.project_manager)
+        response = self.client.get(self.member_detail_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        
+        self.assertIn("user_permissions", response.data)
+        self.assertIn("current_user_role", response.data)
+        
+        perms = response.data["user_permissions"]
+        self.assertTrue(perms["can_edit"])
+        self.assertFalse(perms["can_delete"])
+        self.assertTrue(perms["can_manage_tasks"])
+        self.assertFalse(perms["can_manage_members"])
+        self.assertEqual(response.data["current_user_role"], "manager")

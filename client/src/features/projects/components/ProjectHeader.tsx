@@ -38,7 +38,10 @@ export function ProjectHeader({ project }: ProjectHeaderProps) {
                 {project.name}
               </h1>
             </div>
-            <button className="btn btn-primary btn-sm flex-shrink-0" disabled>
+            <button 
+              className="btn btn-primary btn-sm flex-shrink-0" 
+              disabled={!project.user_permissions.can_edit}
+            >
               Edit Project
             </button>
           </div>

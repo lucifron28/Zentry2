@@ -23,6 +23,13 @@ export type Project = {
   owner: ApiUser | null
   members: ApiUser[]
   task_count: number
+  user_permissions: {
+    can_edit: boolean
+    can_delete: boolean
+    can_manage_tasks: boolean
+    can_manage_members: boolean
+  }
+  current_user_role: string | null
   created_at: string
   updated_at: string
 }
