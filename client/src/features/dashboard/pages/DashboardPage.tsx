@@ -1,16 +1,29 @@
+import { useState } from 'react'
 import { PageHeader } from '@/shared/ui/data/PageHeader'
 import { DashboardStatRow } from '@/features/dashboard/components/DashboardStatRow'
 import { RecentActivityCard } from '@/features/dashboard/components/RecentActivityCard'
 import { FocusTasksCard } from '@/features/dashboard/components/FocusTasksCard'
 import { ActiveProjectsCard } from '@/features/dashboard/components/ActiveProjectsCard'
 import { InsightCard } from '@/features/dashboard/components/InsightCard'
+import { CreateProjectModal } from '@/features/projects/components/CreateProjectModal'
 
 export function DashboardPage() {
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
+
   return (
     <section className="space-y-6">
       <PageHeader
         title="Dashboard"
         description="Track summary metrics and current progress snapshots across projects and tasks."
+        action={
+          <button
+            className="btn btn-primary btn-sm"
+            onClick={() => setIsCreateModalOpen(true)}
+            aria-label="Create new project"
+          >
+            + New Project
+          </button>
+        }
       />
 
       {/* Stat summary row */}
@@ -30,6 +43,15 @@ export function DashboardPage() {
           <InsightCard />
         </div>
       </div>
+
+      <CreateProjectModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        onCreated={() => {
+          // Typically we would trigger a refresh or show a notification
+          // but for now, just closing is enough as per current flow
+        }}
+      />
     </section>
   )
 }
