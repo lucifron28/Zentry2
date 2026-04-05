@@ -13,7 +13,7 @@ class AuthenticationApiTests(APITestCase):
             username="pmuser",
             email="pm@example.com",
             password=self.password,
-            role=User.Role.PROJECT_MANAGER,
+            role=User.Role.USER,
             first_name="Project",
             last_name="Manager",
         )
@@ -36,7 +36,7 @@ class AuthenticationApiTests(APITestCase):
         self.assertIn(settings.AUTH_COOKIE_REFRESH_NAME, response.cookies)
         self.assertTrue(response.cookies[settings.AUTH_COOKIE_REFRESH_NAME].value)
         self.assertEqual(response.data["user"]["email"], self.user.email)
-        self.assertEqual(response.data["user"]["role"], User.Role.PROJECT_MANAGER)
+        self.assertEqual(response.data["user"]["role"], User.Role.USER)
         self.assertNotIn("password", response.data["user"])
 
     def test_login_fails_with_invalid_credentials(self):
@@ -84,7 +84,7 @@ class AuthenticationApiTests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["email"], self.user.email)
-        self.assertEqual(response.data["role"], User.Role.PROJECT_MANAGER)
+        self.assertEqual(response.data["role"], User.Role.USER)
         self.assertNotIn("password", response.data)
 
 
