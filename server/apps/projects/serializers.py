@@ -55,32 +55,14 @@ class ProjectSerializer(serializers.ModelSerializer):
             }
 
         user = request.user
-        if getattr(user, "role", None) == User.Role.ADMIN:
-            return {
-                "can_edit": True,
-                "can_delete": True,
-                "can_manage_tasks": True,
-                "can_manage_members": True,
-            }
-
-        membership = obj.memberships.filter(user=user).first()
-        if not membership:
-            return {
-                "can_edit": False,
-                "can_delete": False,
-                "can_manage_tasks": False,
-                "can_manage_members": False,
-            }
-
-        role = membership.role
-        is_owner = role == ProjectMembership.Role.OWNER
-        is_manager = role == ProjectMembership.Role.MANAGER
+        is_admin = getattr(user, "role", None) == User.Role.ADMIN
+        is_owner = obj.owner_id == user.id
 
         return {
-            "can_edit": is_owner or is_manager,
-            "can_delete": is_owner,
-            "can_manage_tasks": is_owner or is_manager,
-            "can_manage_members": is_owner,
+            "can_edit": is_admin or is_owner,
+            "can_delete": is_admin or is_owner,
+            "can_manage_tasks": is_admin or is_owner,
+            "can_manage_members": is_admin or is_owner,
         }
 
     def get_current_user_role(self, obj):
