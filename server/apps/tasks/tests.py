@@ -18,25 +18,25 @@ class TaskAccessPolicyTests(APITestCase):
             username="taskpmowner",
             email="taskpmowner@example.com",
             password="TestPass123!",
-            role=User.Role.TEAM_MEMBER,
+            role=User.Role.USER,
         )
         self.pm_manager = User.objects.create_user(
             username="taskpmmanager",
             email="taskpmmanager@example.com",
             password="TestPass123!",
-            role=User.Role.TEAM_MEMBER,
+            role=User.Role.USER,
         )
         self.team_member = User.objects.create_user(
             username="taskmember",
             email="taskmember@example.com",
             password="TestPass123!",
-            role=User.Role.TEAM_MEMBER,
+            role=User.Role.USER,
         )
         self.outsider = User.objects.create_user(
             username="taskoutsider",
             email="taskoutsider@example.com",
             password="TestPass123!",
-            role=User.Role.TEAM_MEMBER,
+            role=User.Role.USER,
         )
 
         self.project_visible = Project.objects.create(

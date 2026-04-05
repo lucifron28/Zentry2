@@ -11,7 +11,7 @@ class ProjectMembershipApiTests(APITestCase):
             username="owner",
             email="owner@example.com",
             password="TestPass123!",
-            role=User.Role.PROJECT_MANAGER,
+            role=User.Role.USER,
             first_name="Owner",
             last_name="User",
         )
@@ -27,7 +27,7 @@ class ProjectMembershipApiTests(APITestCase):
             username="member",
             email="member@example.com",
             password="TestPass123!",
-            role=User.Role.TEAM_MEMBER,
+            role=User.Role.USER,
             first_name="Member",
             last_name="User",
         )
@@ -35,7 +35,7 @@ class ProjectMembershipApiTests(APITestCase):
             username="candidate",
             email="candidate@example.com",
             password="TestPass123!",
-            role=User.Role.TEAM_MEMBER,
+            role=User.Role.USER,
             first_name="Candidate",
             last_name="User",
         )
@@ -43,7 +43,7 @@ class ProjectMembershipApiTests(APITestCase):
             username="outsider",
             email="outsider@example.com",
             password="TestPass123!",
-            role=User.Role.TEAM_MEMBER,
+            role=User.Role.USER,
             first_name="Outsider",
             last_name="User",
         )
@@ -99,7 +99,7 @@ class ProjectMembershipApiTests(APITestCase):
             format="json",
         )
 
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         self.project.refresh_from_db()
         self.assertFalse(self.project.members.filter(pk=self.candidate.id).exists())
 
@@ -153,31 +153,31 @@ class ProjectAccessPolicyTests(APITestCase):
             username="pmowner",
             email="pmowner@example.com",
             password="TestPass123!",
-            role=User.Role.TEAM_MEMBER,  # No and MANAGER global roles used for management logic
+            role=User.Role.USER,  # No OWNER or MANAGER global roles used for management logic
         )
         self.pm_member = User.objects.create_user(
             username="pmmember",
             email="pmmember@example.com",
             password="TestPass123!",
-            role=User.Role.TEAM_MEMBER,
+            role=User.Role.USER,
         )
         self.team_member = User.objects.create_user(
             username="teammember",
             email="teammember@example.com",
             password="TestPass123!",
-            role=User.Role.TEAM_MEMBER,
+            role=User.Role.USER,
         )
         self.project_manager = User.objects.create_user(
             username="projmanager",
             email="projmanager@example.com",
             password="TestPass123!",
-            role=User.Role.TEAM_MEMBER,
+            role=User.Role.USER,
         )
         self.outsider = User.objects.create_user(
             username="outsider2",
             email="outsider2@example.com",
             password="TestPass123!",
-            role=User.Role.TEAM_MEMBER,
+            role=User.Role.USER,
         )
 
         self.owned_project = Project.objects.create(
