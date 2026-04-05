@@ -20,9 +20,9 @@ class ProjectsAccessPermission(BasePermission):
             }
 
         if getattr(view, "action", None) == "create":
-            return role in {User.Role.ADMIN, User.Role.PROJECT_MANAGER}
+            return True
 
-        return role in {User.Role.ADMIN, User.Role.PROJECT_MANAGER}
+        return role in {User.Role.ADMIN, User.Role.PROJECT_MANAGER, User.Role.TEAM_MEMBER}
 
     def has_object_permission(self, request, view, obj):
         user = request.user
@@ -38,7 +38,8 @@ class ProjectsAccessPermission(BasePermission):
         if request.method in SAFE_METHODS:
             return is_project_member
 
-        if role == User.Role.PROJECT_MANAGER:
+        # Allow owners to update/delete projects regardless of their global role
+        if role in {User.Role.PROJECT_MANAGER, User.Role.TEAM_MEMBER}:
             return bool(obj.owner_id == user.id)
 
         return False

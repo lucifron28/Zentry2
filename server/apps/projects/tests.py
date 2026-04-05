@@ -218,19 +218,49 @@ class ProjectAccessPolicyTests(APITestCase):
         self.assertNotIn(self.member_project.id, project_ids)
         self.assertNotIn(self.hidden_project.id, project_ids)
 
-    def test_team_member_cannot_create_project(self):
+    def test_team_member_can_create_project(self):
         self._auth_as(self.team_member)
 
         response = self.client.post(
             self.list_url,
             {
                 "name": "Team Member Created Project",
-                "description": "Should be blocked",
+                "description": "Now allowed",
             },
             format="json",
         )
 
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data["name"], "Team Member Created Project")
+        
+        # Verify ownership and membership
+        project = Project.objects.get(id=response.data["id"])
+        self.assertEqual(project.owner_id, self.team_member.id)
+        self.assertTrue(project.members.filter(pk=self.team_member.id).exists())
+    
+    def test_team_member_owner_can_update_owned_project(self):
+        # First, create a project owned by the team member
+        tm_owned_project = Project.objects.create(
+            name="TM Owned Project",
+            owner=self.team_member,
+            status=Project.Status.ACTIVE,
+            priority=Project.Priority.MEDIUM,
+        )
+        tm_owned_project.members.add(self.team_member)
+        url = f"/api/v1/projects/{tm_owned_project.id}/"
+        
+        self._auth_as(self.team_member)
+        response = self.client.patch(
+            url,
+            {"name": "TM Updated Project Name"},
+            format="json",
+        )
+        
+        # Currently, this is expected to FAIL (403) with existing permissions
+        # But we WANT this to be 200_OK once we apply our fix!
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        tm_owned_project.refresh_from_db()
+        self.assertEqual(tm_owned_project.name, "TM Updated Project Name")
 
     def test_project_manager_member_cannot_update_non_owned_project(self):
         self._auth_as(self.pm_member)
