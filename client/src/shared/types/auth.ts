@@ -1,4 +1,4 @@
-export type UserRole = 'admin' | 'project_manager' | 'team_member'
+export type UserRole = 'admin' | 'user'
 
 export type AuthUser = {
   id: number
