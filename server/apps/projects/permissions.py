@@ -25,23 +25,13 @@ class ProjectsAccessPermission(BasePermission):
         if getattr(user, "role", None) == User.Role.ADMIN:
             return True
 
-        # Check project membership
-        membership = ProjectMembership.objects.filter(project=obj, user=user).first()
-        if not membership:
-            return False
+        # Owner Access (Full)
+        if obj.owner_id == user.id:
+            return True
 
         # Member Access (Read-only)
         if request.method in SAFE_METHODS:
-            return True
-
-        # Manager Access (Update)
-        if membership.role == ProjectMembership.Role.MANAGER:
-            # Managers cannot delete
-            return request.method != "DELETE"
-
-        # Owner Access (Full)
-        if membership.role == ProjectMembership.Role.OWNER:
-            return True
+            return obj.members.filter(pk=user.id).exists()
 
         # Regular members or others cannot modify
         return False
