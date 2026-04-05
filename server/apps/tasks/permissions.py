@@ -28,8 +28,9 @@ class TasksAccessPermission(BasePermission):
         if project is None:
             return False
 
-        # Parent Project Owner Access (Full)
-        if project.owner_id == user.id:
+        # Parent Project Owner or Manager Access (Full)
+        membership = ProjectMembership.objects.filter(project=project, user=user).first()
+        if membership and membership.role in {ProjectMembership.Role.OWNER, ProjectMembership.Role.MANAGER}:
             return True
 
         # Parent Project Member Access (Read-only)

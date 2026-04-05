@@ -63,8 +63,9 @@ class TaskViewSet(viewsets.ModelViewSet):
         if project is None:
             raise ValidationError({"project": ["Project is required for this operation."]})
 
-        if project.owner_id != user.id:
-            raise PermissionDenied("Only the project owner can manage tasks in this project.")
+        membership = self._get_project_membership(user, project)
+        if not membership or membership.role not in {ProjectMembership.Role.OWNER, ProjectMembership.Role.MANAGER}:
+            raise PermissionDenied("Only the project owner or a manager can manage tasks in this project.")
 
         if project is not None and assignee is not None:
             is_project_assignee = ProjectMembership.objects.filter(project=project, user=assignee).exists()

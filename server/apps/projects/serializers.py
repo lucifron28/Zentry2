@@ -56,12 +56,14 @@ class ProjectSerializer(serializers.ModelSerializer):
 
         user = request.user
         is_admin = getattr(user, "role", None) == User.Role.ADMIN
-        is_owner = obj.owner_id == user.id
+        membership = obj.memberships.filter(user=user).first()
+        is_owner = membership and membership.role == ProjectMembership.Role.OWNER
+        is_manager = membership and membership.role == ProjectMembership.Role.MANAGER
 
         return {
-            "can_edit": is_admin or is_owner,
+            "can_edit": is_admin or is_owner or is_manager,
             "can_delete": is_admin or is_owner,
-            "can_manage_tasks": is_admin or is_owner,
+            "can_manage_tasks": is_admin or is_owner or is_manager,
             "can_manage_members": is_admin or is_owner,
         }
 

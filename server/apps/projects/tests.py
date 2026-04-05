@@ -250,16 +250,16 @@ class ProjectAccessPolicyTests(APITestCase):
         membership = ProjectMembership.objects.get(project_id=response.data["id"], user=self.team_member)
         self.assertEqual(membership.role, ProjectMembership.Role.OWNER)
 
-    def test_project_manager_is_currently_read_only(self):
+    def test_project_manager_can_update_but_not_delete(self):
         self._auth_as(self.project_manager)
 
-        # UPDATE: Forbidden for now
+        # UPDATE: Allowed
         response = self.client.patch(
             self.member_detail_url,
             {"name": "Manager Renamed Project"},
             format="json",
         )
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         # DELETE: Forbidden
         response = self.client.delete(self.member_detail_url)
@@ -308,8 +308,8 @@ class ProjectAccessPolicyTests(APITestCase):
         self.assertIn("current_user_role", response.data)
         
         perms = response.data["user_permissions"]
-        self.assertFalse(perms["can_edit"])
+        self.assertTrue(perms["can_edit"])
         self.assertFalse(perms["can_delete"])
-        self.assertFalse(perms["can_manage_tasks"])
+        self.assertTrue(perms["can_manage_tasks"])
         self.assertFalse(perms["can_manage_members"])
         self.assertEqual(response.data["current_user_role"], "manager")
