@@ -196,6 +196,6 @@ Optional details for stronger exam documentation:
 
 Optional details for stronger exam documentation:
 - User flow summary: A regular user logs in, creates a new project from the Dashboard or Projects list, and is immediately granted OWNER rights for that project. They can then add members and manage tasks without needing a global Project Manager role.
-- Role(s) tested: Any Authenticated User (creation), Project Owner, Project Manager, Project Member.
+- Role(s) tested: Any Authenticated User (creation), Project Owner, Project Manager, Project Member. Global roles simplified to ADMIN and USER.
 - Validation or permission behavior observed: Frontend UI dynamically hides/shows management controls based on the backend-provided `user_permissions` block. Admin role maintains system-wide oversight across all projects.
 - Follow-up actions: Finalize member-role assignment UI.
