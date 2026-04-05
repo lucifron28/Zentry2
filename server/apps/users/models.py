@@ -11,11 +11,10 @@ class User(AbstractUser, TimeStampedModel):
 
 	class Role(models.TextChoices):
 		ADMIN = "admin", "Admin"
-		PROJECT_MANAGER = "project_manager", "Project Manager"
-		TEAM_MEMBER = "team_member", "Team Member"
+		USER = "user", "User"
 
 	email = models.EmailField("email address", unique=True)
-	role = models.CharField(max_length=32, choices=Role.choices, default=Role.TEAM_MEMBER)
+	role = models.CharField(max_length=32, choices=Role.choices, default=Role.USER)
 
 	def save(self, *args, **kwargs):
 		if self.email:
