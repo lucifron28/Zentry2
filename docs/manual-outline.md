@@ -5,7 +5,7 @@ This section will describe the purpose of Zentry, target users, major modules, a
 
 Suggested points to document:
 - What Zentry solves for project teams
-- Who uses the system (Global Admin, Project Owner, Project Manager, Project Member)
+- Who uses the system (Global Roles: Admin, User; Project-level Roles: Owner, Manager, Member)
 - What each major module contributes to the workflow
 - Boundaries of the current implementation stage (Project-contextual authority)
 
