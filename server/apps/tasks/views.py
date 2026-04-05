@@ -3,6 +3,7 @@ from rest_framework.exceptions import PermissionDenied, ValidationError
 from django.db.models import Q
 
 from apps.users.models import User
+from apps.projects.models import ProjectMembership
 from .models import Task
 from .serializers import TaskSerializer, TaskCreateUpdateSerializer
 from .permissions import TasksAccessPermission
@@ -17,13 +18,13 @@ class TaskViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = Task.objects.select_related("project", "project__owner", "assignee").prefetch_related(
-            "project__members"
+            "project__memberships"
         ).all()
 
         user = self.request.user
         if getattr(user, "role", None) != User.Role.ADMIN:
             queryset = queryset.filter(
-                Q(project__owner_id=user.id) | Q(project__members__id=user.id)
+                project__memberships__user=user
             ).distinct()
         
         project_param = self.request.query_params.get("project")
@@ -49,26 +50,30 @@ class TaskViewSet(viewsets.ModelViewSet):
             return TaskCreateUpdateSerializer
         return TaskSerializer
 
-    def _can_access_project(self, user, project):
+    def _get_project_membership(self, user, project):
         if getattr(user, "role", None) == User.Role.ADMIN:
-            return True
-        return bool(project and (project.owner_id == user.id or project.members.filter(pk=user.id).exists()))
+            return None # Admins don't need membership for access
+        return ProjectMembership.objects.filter(project=project, user=user).first()
 
     def _validate_write_scope(self, *, project, assignee):
         user = self.request.user
-        role = getattr(user, "role", None)
+        if getattr(user, "role", None) == User.Role.ADMIN:
+            return
 
-        if role != User.Role.ADMIN:
-            if project is None:
-                raise ValidationError({"project": ["Project is required for this operation."]})
+        if project is None:
+            raise ValidationError({"project": ["Project is required for this operation."]})
 
-            if not self._can_access_project(user, project):
-                raise PermissionDenied("You do not have access to this project.")
+        membership = self._get_project_membership(user, project)
+        if not membership:
+            raise PermissionDenied("You do not have access to this project.")
+
+        if membership.role not in {ProjectMembership.Role.OWNER, ProjectMembership.Role.MANAGER}:
+            raise PermissionDenied("You do not have permission to manage tasks in this project.")
 
         if project is not None and assignee is not None:
-            is_project_assignee = bool(assignee.id == project.owner_id or project.members.filter(pk=assignee.id).exists())
+            is_project_assignee = ProjectMembership.objects.filter(project=project, user=assignee).exists()
             if not is_project_assignee:
-                raise ValidationError({"assignee": ["Assignee must be the project owner or a project member."]})
+                raise ValidationError({"assignee": ["Assignee must be a project member."]})
 
     def perform_create(self, serializer):
         project = serializer.validated_data.get("project")

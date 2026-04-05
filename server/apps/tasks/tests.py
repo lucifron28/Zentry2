@@ -1,7 +1,7 @@
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from apps.projects.models import Project
+from apps.projects.models import Project, ProjectMembership
 from apps.users.models import User
 from .models import Task
 
@@ -18,13 +18,13 @@ class TaskAccessPolicyTests(APITestCase):
             username="taskpmowner",
             email="taskpmowner@example.com",
             password="TestPass123!",
-            role=User.Role.PROJECT_MANAGER,
+            role=User.Role.TEAM_MEMBER,
         )
-        self.pm_member = User.objects.create_user(
-            username="taskpmmember",
-            email="taskpmmember@example.com",
+        self.pm_manager = User.objects.create_user(
+            username="taskpmmanager",
+            email="taskpmmanager@example.com",
             password="TestPass123!",
-            role=User.Role.PROJECT_MANAGER,
+            role=User.Role.TEAM_MEMBER,
         )
         self.team_member = User.objects.create_user(
             username="taskmember",
@@ -45,7 +45,10 @@ class TaskAccessPolicyTests(APITestCase):
             status=Project.Status.ACTIVE,
             priority=Project.Priority.MEDIUM,
         )
-        self.project_visible.members.add(self.pm_owner, self.pm_member, self.team_member)
+        # Roles: pm_owner=OWNER, pm_manager=MANAGER, team_member=MEMBER
+        ProjectMembership.objects.create(project=self.project_visible, user=self.pm_owner, role=ProjectMembership.Role.OWNER)
+        ProjectMembership.objects.create(project=self.project_visible, user=self.pm_manager, role=ProjectMembership.Role.MANAGER)
+        ProjectMembership.objects.create(project=self.project_visible, user=self.team_member, role=ProjectMembership.Role.MEMBER)
 
         self.project_hidden = Project.objects.create(
             name="Hidden Project",
@@ -53,7 +56,7 @@ class TaskAccessPolicyTests(APITestCase):
             status=Project.Status.ACTIVE,
             priority=Project.Priority.HIGH,
         )
-        self.project_hidden.members.add(self.admin)
+        ProjectMembership.objects.create(project=self.project_hidden, user=self.admin, role=ProjectMembership.Role.OWNER)
 
         self.visible_task = Task.objects.create(
             title="Visible Task",
@@ -83,7 +86,7 @@ class TaskAccessPolicyTests(APITestCase):
         response = self.client.get(self.list_url)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
-    def test_team_member_list_is_scoped_to_accessible_project_tasks(self):
+    def test_team_member_list_is_scoped_to_membership(self):
         self._auth_as(self.team_member)
 
         response = self.client.get(self.list_url)
@@ -93,7 +96,7 @@ class TaskAccessPolicyTests(APITestCase):
         self.assertIn(self.visible_task.id, task_ids)
         self.assertNotIn(self.hidden_task.id, task_ids)
 
-    def test_team_member_cannot_create_task(self):
+    def test_project_member_cannot_create_task(self):
         self._auth_as(self.team_member)
 
         response = self.client.post(
@@ -107,14 +110,14 @@ class TaskAccessPolicyTests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-    def test_project_manager_member_can_create_task_in_accessible_project(self):
-        self._auth_as(self.pm_member)
+    def test_project_manager_can_create_task(self):
+        self._auth_as(self.pm_manager)
 
         response = self.client.post(
             self.list_url,
             {
                 "title": "Allowed task",
-                "description": "Created by project manager member",
+                "description": "Created by project manager",
                 "project": self.project_visible.id,
                 "assignee": self.team_member.id,
                 "status": Task.Status.TODO,
@@ -126,8 +129,13 @@ class TaskAccessPolicyTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data["project"], self.project_visible.id)
 
+    def test_project_manager_can_delete_task(self):
+        self._auth_as(self.pm_manager)
+        response = self.client.delete(self.visible_detail_url)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
     def test_project_manager_cannot_create_task_in_inaccessible_project(self):
-        self._auth_as(self.pm_member)
+        self._auth_as(self.pm_manager)
 
         response = self.client.post(
             self.list_url,
@@ -140,10 +148,11 @@ class TaskAccessPolicyTests(APITestCase):
             format="json",
         )
 
+        # Forbidden because no membership in hidden project
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_project_manager_cannot_assign_non_project_member(self):
-        self._auth_as(self.pm_member)
+        self._auth_as(self.pm_manager)
 
         response = self.client.post(
             self.list_url,
@@ -160,7 +169,7 @@ class TaskAccessPolicyTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_project_manager_cannot_update_task_in_inaccessible_project(self):
-        self._auth_as(self.pm_member)
+        self._auth_as(self.pm_manager)
 
         response = self.client.patch(
             self.hidden_detail_url,
@@ -168,6 +177,7 @@ class TaskAccessPolicyTests(APITestCase):
             format="json",
         )
 
+        # Scoped out in queryset, so 404
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_admin_can_create_task_without_project(self):
