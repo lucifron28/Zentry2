@@ -142,7 +142,7 @@ Zentry-specific guidance:
 ### 2.3.3 People
 Zentry-specific guidance:
 - Implemented:
-  - Global roles: Admin, Project Manager (Legacy), Team Member.
+  - Global roles: Admin, User.
   - Project-level roles: OWNER, MANAGER, MEMBER.
 - In Progress:
   - Role-specific workflow validation is pending module-level implementation.
