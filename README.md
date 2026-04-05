@@ -35,8 +35,7 @@ Backend:
 ## Locked Roles
 Global Roles:
 - Admin
-- Project Manager (Legacy)
-- Team Member
+- User (All authenticated users)
 
 Project-Level Roles (Contextual):
 - OWNER (Full control, including deletion)
@@ -87,7 +86,7 @@ Implemented auth and scaffold highlights:
 - Approved daisyUI theme registration with configured default/preferred-dark behavior.
 - Public and protected layout separation.
 - App shell foundation with sidebar, topbar, and reusable loading/error/empty states.
-- Backend custom user model with explicit roles: Admin, Project Manager, Team Member.
+- Backend custom user model with explicit global roles: Admin, User.
 - Backend authentication endpoints are live under `/api/v1/auth/`:
 	- `POST /auth/login/`
 	- `POST /auth/refresh/`
