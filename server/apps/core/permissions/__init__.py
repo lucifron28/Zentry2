@@ -1,3 +1,1 @@
-from .base import IsAdminOrProjectManager
-
-__all__ = ["IsAdminOrProjectManager"]
+__all__ = []
