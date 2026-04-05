@@ -6,7 +6,7 @@ from django.db.models import Q
 
 from apps.core.audit import log_audit_event
 from apps.users.models import User
-from .models import Project
+from .models import Project, ProjectMembership
 from .serializers import (
     ProjectCreateUpdateSerializer,
     ProjectMemberMutationSerializer,
@@ -45,7 +45,13 @@ class ProjectViewSet(viewsets.ModelViewSet):
         return ProjectSerializer
 
     def perform_create(self, serializer):
-        serializer.save(owner=self.request.user, members=[self.request.user])
+        project = serializer.save(owner=self.request.user)
+        # Explicitly create owner membership
+        ProjectMembership.objects.create(
+            project=project,
+            user=self.request.user,
+            role=ProjectMembership.Role.OWNER
+        )
 
     def _get_member_target_user(self, request):
         serializer = ProjectMemberMutationSerializer(data=request.data)

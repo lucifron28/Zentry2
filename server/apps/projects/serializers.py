@@ -1,16 +1,24 @@
 from rest_framework import serializers
 
 from apps.users.serializers import UserSummarySerializer
-from .models import Project
+from .models import Project, ProjectMembership
 
 
 class ProjectMemberMutationSerializer(serializers.Serializer):
     user_id = serializers.IntegerField(min_value=1)
 
 
+class ProjectMembershipSerializer(serializers.ModelSerializer):
+    user = UserSummarySerializer(read_only=True)
+    
+    class Meta:
+        model = ProjectMembership
+        fields = ("user", "role")
+
+
 class ProjectSerializer(serializers.ModelSerializer):
     owner = UserSummarySerializer(read_only=True)
-    members = UserSummarySerializer(many=True, read_only=True)
+    members = ProjectMembershipSerializer(source="memberships", many=True, read_only=True)
     
     class Meta:
         model = Project
