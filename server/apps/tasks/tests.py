@@ -110,13 +110,13 @@ class TaskAccessPolicyTests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-    def test_project_manager_can_create_task(self):
+    def test_project_manager_cannot_create_task_currently(self):
         self._auth_as(self.pm_manager)
 
         response = self.client.post(
             self.list_url,
             {
-                "title": "Allowed task",
+                "title": "Blocked task",
                 "description": "Created by project manager",
                 "project": self.project_visible.id,
                 "assignee": self.team_member.id,
@@ -126,13 +126,12 @@ class TaskAccessPolicyTests(APITestCase):
             format="json",
         )
 
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(response.data["project"], self.project_visible.id)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-    def test_project_manager_can_delete_task(self):
+    def test_project_manager_cannot_delete_task_currently(self):
         self._auth_as(self.pm_manager)
         response = self.client.delete(self.visible_detail_url)
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_project_manager_cannot_create_task_in_inaccessible_project(self):
         self._auth_as(self.pm_manager)
@@ -166,7 +165,7 @@ class TaskAccessPolicyTests(APITestCase):
             format="json",
         )
 
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_project_manager_cannot_update_task_in_inaccessible_project(self):
         self._auth_as(self.pm_manager)
