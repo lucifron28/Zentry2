@@ -27,7 +27,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
 
         user = self.request.user
         if getattr(user, "role", None) != User.Role.ADMIN:
-            queryset = queryset.filter(Q(owner_id=user.id) | Q(members__id=user.id)).distinct()
+            queryset = queryset.filter(memberships__user=user).distinct()
         
         status_param = self.request.query_params.get("status")
         if status_param:

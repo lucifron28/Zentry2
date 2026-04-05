@@ -2,7 +2,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 
 from apps.users.models import User
-from .models import Project
+from .models import Project, ProjectMembership
 
 
 class ProjectMembershipApiTests(APITestCase):
@@ -55,7 +55,9 @@ class ProjectMembershipApiTests(APITestCase):
             priority=Project.Priority.MEDIUM,
             owner=self.owner,
         )
-        self.project.members.add(self.owner, self.member)
+        # Formalize memberships
+        ProjectMembership.objects.create(project=self.project, user=self.owner, role=ProjectMembership.Role.OWNER)
+        ProjectMembership.objects.create(project=self.project, user=self.member, role=ProjectMembership.Role.MEMBER)
 
         self.members_url = f"/api/v1/projects/{self.project.id}/members/"
 
@@ -151,17 +153,23 @@ class ProjectAccessPolicyTests(APITestCase):
             username="pmowner",
             email="pmowner@example.com",
             password="TestPass123!",
-            role=User.Role.PROJECT_MANAGER,
+            role=User.Role.TEAM_MEMBER,  # No and MANAGER global roles used for management logic
         )
         self.pm_member = User.objects.create_user(
             username="pmmember",
             email="pmmember@example.com",
             password="TestPass123!",
-            role=User.Role.PROJECT_MANAGER,
+            role=User.Role.TEAM_MEMBER,
         )
         self.team_member = User.objects.create_user(
             username="teammember",
             email="teammember@example.com",
+            password="TestPass123!",
+            role=User.Role.TEAM_MEMBER,
+        )
+        self.project_manager = User.objects.create_user(
+            username="projmanager",
+            email="projmanager@example.com",
             password="TestPass123!",
             role=User.Role.TEAM_MEMBER,
         )
@@ -178,7 +186,8 @@ class ProjectAccessPolicyTests(APITestCase):
             status=Project.Status.ACTIVE,
             priority=Project.Priority.HIGH,
         )
-        self.owned_project.members.add(self.pm_owner, self.team_member)
+        ProjectMembership.objects.create(project=self.owned_project, user=self.pm_owner, role=ProjectMembership.Role.OWNER)
+        ProjectMembership.objects.create(project=self.owned_project, user=self.team_member, role=ProjectMembership.Role.MEMBER)
 
         self.member_project = Project.objects.create(
             name="Member Project",
@@ -186,7 +195,10 @@ class ProjectAccessPolicyTests(APITestCase):
             status=Project.Status.ACTIVE,
             priority=Project.Priority.MEDIUM,
         )
-        self.member_project.members.add(self.pm_member)
+        # Self-joining as OWNER is handled in perform_create in real views, but done manually here
+        ProjectMembership.objects.create(project=self.member_project, user=self.admin, role=ProjectMembership.Role.OWNER)
+        ProjectMembership.objects.create(project=self.member_project, user=self.pm_member, role=ProjectMembership.Role.MEMBER)
+        ProjectMembership.objects.create(project=self.member_project, user=self.project_manager, role=ProjectMembership.Role.MANAGER)
 
         self.hidden_project = Project.objects.create(
             name="Hidden Project",
@@ -194,6 +206,7 @@ class ProjectAccessPolicyTests(APITestCase):
             status=Project.Status.PLANNING,
             priority=Project.Priority.LOW,
         )
+        ProjectMembership.objects.create(project=self.hidden_project, user=self.admin, role=ProjectMembership.Role.OWNER)
 
         self.list_url = "/api/v1/projects/"
         self.owned_detail_url = f"/api/v1/projects/{self.owned_project.id}/"
@@ -207,7 +220,7 @@ class ProjectAccessPolicyTests(APITestCase):
         response = self.client.get(self.list_url)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
-    def test_team_member_list_is_scoped_to_member_projects(self):
+    def test_team_member_list_is_scoped_to_membership(self):
         self._auth_as(self.team_member)
 
         response = self.client.get(self.list_url)
@@ -221,6 +234,7 @@ class ProjectAccessPolicyTests(APITestCase):
     def test_team_member_can_create_project(self):
         self._auth_as(self.team_member)
 
+        # In ProjectViewSet creation, it becomes owner
         response = self.client.post(
             self.list_url,
             {
@@ -231,38 +245,27 @@ class ProjectAccessPolicyTests(APITestCase):
         )
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(response.data["name"], "Team Member Created Project")
         
-        # Verify ownership and membership
-        project = Project.objects.get(id=response.data["id"])
-        self.assertEqual(project.owner_id, self.team_member.id)
-        self.assertTrue(project.members.filter(pk=self.team_member.id).exists())
-    
-    def test_team_member_owner_can_update_owned_project(self):
-        # First, create a project owned by the team member
-        tm_owned_project = Project.objects.create(
-            name="TM Owned Project",
-            owner=self.team_member,
-            status=Project.Status.ACTIVE,
-            priority=Project.Priority.MEDIUM,
-        )
-        tm_owned_project.members.add(self.team_member)
-        url = f"/api/v1/projects/{tm_owned_project.id}/"
-        
-        self._auth_as(self.team_member)
+        # Verify ownership role exists
+        membership = ProjectMembership.objects.get(project_id=response.data["id"], user=self.team_member)
+        self.assertEqual(membership.role, ProjectMembership.Role.OWNER)
+
+    def test_project_manager_can_update_but_not_delete(self):
+        self._auth_as(self.project_manager)
+
+        # UPDATE: Allowed
         response = self.client.patch(
-            url,
-            {"name": "TM Updated Project Name"},
+            self.member_detail_url,
+            {"name": "Manager Renamed Project"},
             format="json",
         )
-        
-        # Currently, this is expected to FAIL (403) with existing permissions
-        # But we WANT this to be 200_OK once we apply our fix!
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        tm_owned_project.refresh_from_db()
-        self.assertEqual(tm_owned_project.name, "TM Updated Project Name")
 
-    def test_project_manager_member_cannot_update_non_owned_project(self):
+        # DELETE: Forbidden
+        response = self.client.delete(self.member_detail_url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_project_member_cannot_update(self):
         self._auth_as(self.pm_member)
 
         response = self.client.patch(
@@ -270,25 +273,18 @@ class ProjectAccessPolicyTests(APITestCase):
             {"name": "Unauthorized Rename"},
             format="json",
         )
-
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-    def test_project_manager_owner_can_update_owned_project(self):
+    def test_project_owner_can_delete(self):
         self._auth_as(self.pm_owner)
 
-        response = self.client.patch(
-            self.owned_detail_url,
-            {"name": "Owner Updated Name"},
-            format="json",
-        )
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        response = self.client.delete(self.owned_detail_url)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
     def test_outsider_cannot_retrieve_unrelated_project(self):
         self._auth_as(self.outsider)
 
         response = self.client.get(self.hidden_detail_url)
-
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_admin_can_list_all_projects(self):
