@@ -1,9 +1,13 @@
-from django.urls import path
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
 
-from .views import CommentsHealthView
+from .views import TaskCommentViewSet
 
 app_name = "comments"
 
+router = DefaultRouter()
+router.register(r"", TaskCommentViewSet, basename="comment")
+
 urlpatterns = [
-    path("health/", CommentsHealthView.as_view(), name="health"),
+    path("", include(router.urls)),
 ]
