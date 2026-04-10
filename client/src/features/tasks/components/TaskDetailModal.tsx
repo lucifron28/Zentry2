@@ -1,6 +1,8 @@
 import type { ApiTask } from '@/features/tasks/types/task'
 import { StatusBadge } from '@/shared/ui/data/StatusBadge'
 import { PriorityBadge } from '@/shared/ui/data/PriorityBadge'
+import { CommentsList } from '@/features/comments/components/CommentsList'
+import { CommentInput } from '@/features/comments/components/CommentInput'
 
 type TaskDetailModalProps = {
   isOpen: boolean
@@ -23,7 +25,7 @@ export function TaskDetailModal({ isOpen, onClose, task, canEdit, onEdit }: Task
 
   return (
     <div className="modal modal-open" role="dialog" aria-modal="true" aria-labelledby="task-detail-title">
-      <div className="modal-box max-w-lg bg-base-100">
+      <div className="modal-box max-w-2xl bg-base-100">
         <div className="flex justify-between items-start mb-4">
           <h3 id="task-detail-title" className="text-xl font-bold text-base-content leading-snug pr-4">
             {task.title}
@@ -48,6 +50,17 @@ export function TaskDetailModal({ isOpen, onClose, task, canEdit, onEdit }: Task
               <span className="block text-xs font-semibold text-base-content/55 uppercase tracking-wide mb-1">Due Date</span>
               <span className="text-base-content font-medium">{dueDateStr}</span>
             </div>
+          </div>
+        </div>
+
+        {/* Comments Section */}
+        <div className="mt-6 pt-4 border-t border-base-200">
+          <h4 className="text-sm font-semibold text-base-content/70 uppercase tracking-wide mb-3">
+            Comments
+          </h4>
+          <CommentsList taskId={task.id} />
+          <div className="mt-3">
+            <CommentInput taskId={task.id} />
           </div>
         </div>
 
