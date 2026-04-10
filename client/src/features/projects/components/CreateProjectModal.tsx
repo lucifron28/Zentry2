@@ -201,6 +201,7 @@ export function CreateProjectModal({ isOpen, onClose, onCreated }: CreateProject
             >
               <option value="planning">Planning</option>
               <option value="active">Active</option>
+              <option value="on_hold">On Hold</option>
               <option value="completed">Completed</option>
               <option value="overdue">Overdue</option>
             </FormSelect>
@@ -215,6 +216,7 @@ export function CreateProjectModal({ isOpen, onClose, onCreated }: CreateProject
               <option value="low">Low</option>
               <option value="medium">Medium</option>
               <option value="high">High</option>
+              <option value="critical">Critical</option>
             </FormSelect>
           </div>
 

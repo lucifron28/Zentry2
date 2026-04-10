@@ -1,15 +1,17 @@
-export type TaskPriority = 'high' | 'medium' | 'low'
+export type TaskPriority = 'low' | 'medium' | 'high' | 'critical'
 
 const PRIORITY_CLASSES: Record<TaskPriority, string> = {
-  high: 'badge-error',
-  medium: 'badge-warning',
   low: 'badge-ghost',
+  medium: 'badge-warning',
+  high: 'badge-error',
+  critical: 'badge-error border-2 border-error shimmer',
 }
 
 const PRIORITY_LABELS: Record<TaskPriority, string> = {
-  high: 'High',
-  medium: 'Medium',
   low: 'Low',
+  medium: 'Medium',
+  high: 'High',
+  critical: 'Critical',
 }
 
 type PriorityBadgeProps = {
@@ -20,9 +22,9 @@ type PriorityBadgeProps = {
 export function PriorityBadge({ priority, size = 'sm' }: PriorityBadgeProps) {
   return (
     <span
-      className={['badge font-medium', PRIORITY_CLASSES[priority], `badge-${size}`].join(' ')}
+      className={['badge font-medium', PRIORITY_CLASSES[priority] || 'badge-ghost', `badge-${size}`].join(' ')}
     >
-      {PRIORITY_LABELS[priority]}
+      {PRIORITY_LABELS[priority] || priority}
     </span>
   )
 }

@@ -12,8 +12,8 @@ export const projectCreateSchema = z.object({
     .string()
     .trim()
     .max(2000, 'Description must be 2000 characters or fewer.'),
-  status: z.enum(['planning', 'active', 'completed', 'overdue']),
-  priority: z.enum(['low', 'medium', 'high']),
+  status: z.enum(['planning', 'active', 'on_hold', 'completed', 'overdue']),
+  priority: z.enum(['low', 'medium', 'high', 'critical']),
   category: z
     .string()
     .trim()

@@ -1,7 +1,6 @@
 import type { ApiUser, Project } from '@/features/projects/types/project'
 import type { TaskPriority } from '@/shared/ui/data/PriorityBadge'
-
-export type TaskStatus = 'todo' | 'in_progress' | 'in_review' | 'done' | 'blocked'
+import type { TaskStatus } from '@/shared/ui/data/StatusBadge'
 
 export type ApiTask = {
   id: string | number

@@ -5,13 +5,11 @@ import { httpClient } from '@/services/api/client/httpClient'
 import { TASKS_ENDPOINTS } from '@/services/api/endpoints/tasksEndpoints'
 import type { TaskPriority } from '@/shared/ui/data/PriorityBadge'
 
-type ApiTaskPriority = 'low' | 'medium' | 'high' | 'critical'
-
 type ApiTask = {
   id: string | number
   title: string
   status: string
-  priority: ApiTaskPriority
+  priority: TaskPriority
   due_date: string | null
 }
 
@@ -23,11 +21,7 @@ export type FocusTaskItem = {
   done: boolean
 }
 
-function toTaskPriority(priority: ApiTaskPriority): TaskPriority {
-  if (priority === 'critical') {
-    return 'high'
-  }
-
+function toTaskPriority(priority: TaskPriority): TaskPriority {
   return priority
 }
 

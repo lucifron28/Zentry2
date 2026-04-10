@@ -56,7 +56,7 @@ export function FilterToolbar({
           <option value="all">All Statuses</option>
           <option value="active">Active</option>
           <option value="planning">Planning</option>
-          <option value="on-hold">On Hold</option>
+          <option value="on_hold">On Hold</option>
           <option value="completed">Completed</option>
           <option value="overdue">Overdue</option>
         </select>

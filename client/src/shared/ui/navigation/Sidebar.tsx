@@ -18,9 +18,18 @@ export function Sidebar({ className, onNavigate }: SidebarProps) {
   return (
     <aside className={sidebarClassName}>
       {/* Brand header */}
-      <div className="border-b border-base-300 px-5 py-5">
-        <p className="text-xs font-medium uppercase tracking-[0.14em] text-base-content/60">Zentry</p>
-        <h1 className="mt-1 text-lg font-semibold text-base-content">Team Project Management</h1>
+      <div className="border-b border-base-300 px-5 py-6">
+        <div className="flex items-center gap-3">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-content shadow-md">
+            <img src="/zentry-icon.png" alt="" className="h-6 w-6 object-contain" />
+          </div>
+          <div className="min-w-0">
+            <p className="text-sm font-bold tracking-tight text-base-content">Zentry</p>
+            <p className="text-[10px] font-medium uppercase tracking-[0.1em] text-base-content/45 leading-none mt-1">
+              Workspace v0.1
+            </p>
+          </div>
+        </div>
       </div>
 
       {/* Navigation links */}
@@ -46,7 +55,7 @@ export function Sidebar({ className, onNavigate }: SidebarProps) {
 
       {/* Footer */}
       <div className="border-t border-base-300 px-5 py-4 text-xs text-base-content/40">
-        Zentry v0.1 · Team Workspace
+        Team Workspace
       </div>
     </aside>
   )
